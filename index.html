@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ivo Vicente — Portfolio</title>
+  <meta name="description" content="Personal portfolio and AI chat of Ivo Vicente." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>IV</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="#home">IV</a>
+    <nav class="nav-links">
+      <a href="#about">About</a>
+      <a href="#projects">Projects</a>
+      <a href="#chat">AI Chat</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="hero">
+      <p class="hero-eyebrow">Hi, my name is</p>
+      <h1 class="hero-name">Ivo Vicente.</h1>
+      <h2 class="hero-role">I build things for the web.</h2>
+      <p class="hero-blurb">
+        A developer focused on creating fast, clean and useful digital experiences —
+        with an AI assistant to back it up. This site is open source and hosted free on GitHub Pages.
+      </p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#projects">View projects</a>
+        <a class="btn btn-ghost" href="#chat">Talk to my AI</a>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <h2 class="section-title">About me</h2>
+      <div class="about-grid">
+        <div class="about-card">
+          <h3>Who I am</h3>
+          <p>
+            I'm a self-driven developer who loves turning ideas into working products.
+            I care about clean code, honest design, and shipping things people actually use.
+          </p>
+        </div>
+        <div class="about-card">
+          <h3>What I do</h3>
+          <p>
+            Web development, tooling and automation, trading scripts, and experimenting
+            with AI-powered workflows — always learning something new.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" class="section">
+      <h2 class="section-title">Projects</h2>
+      <div class="project-grid">
+        <article class="project-card">
+          <h3>AI Chat Assistant</h3>
+          <p>
+            This very page. A chat widget that talks to any model on OpenRouter directly
+            from the browser using your own API key.
+          </p>
+          <span class="tag">JavaScript</span>
+          <span class="tag">OpenRouter</span>
+        </article>
+        <article class="project-card">
+          <h3>TradingView Pine Scripts</h3>
+          <p>
+            Custom indicators and strategy helpers for TradingView, iterated quickly with
+            automated tooling.
+          </p>
+          <span class="tag">Pine Script</span>
+        </article>
+        <article class="project-card">
+          <h3>Automation Toolkit</h3>
+          <p>
+            Small scripts and workflows that remove repetitive manual work from day-to-day tasks.
+          </p>
+          <span class="tag">Python</span>
+          <span class="tag">Shell</span>
+        </article>
+      </div>
+    </section>
+
+    <section id="chat" class="section chat-section">
+      <h2 class="section-title">AI Chat</h2>
+      <p class="section-sub">
+        Powered by OpenRouter. Your API key stays in your browser — it is never sent to my server
+        (there is none) and is not stored in this repo.
+      </p>
+      <div class="chat-shell" id="chatShell">
+        <div class="chat-messages" id="chatMessages" role="log" aria-live="polite"></div>
+        <form class="chat-input-row" id="chatForm">
+          <textarea id="chatInput" rows="1" placeholder="Ask me anything... (Ctrl+Enter to send)" aria-label="Chat message"></textarea>
+          <button class="btn btn-primary" type="submit" id="chatSend">Send</button>
+        </form>
+        <div class="chat-options">
+          <label class="key-input-wrap" id="keyWrap">
+            <span>OpenRouter key</span>
+            <input type="password" id="apiKey" placeholder="sk-or-..." autocomplete="off" />
+          </label>
+          <label class="model-select-wrap">
+            <span>Model</span>
+            <select id="modelSelect">
+              <option value="meta-llama/llama-3.1-8b-instruct">Llama 3.1 8B</option>
+              <option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B</option>
+              <option value="openai/gpt-4o-mini">GPT-4o mini</option>
+              <option value="anthropic/claude-3.5-haiku">Claude 3.5 Haiku</option>
+              <option value="google/gemini-flash-1.5">Gemini 1.5 Flash</option>
+            </select>
+          </label>
+          <button type="button" class="btn btn-ghost btn-sm" id="saveKeyBtn">Save key</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="clearChatBtn">Clear chat</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <h2 class="section-title">Contact</h2>
+      <p class="section-sub">Want to collaborate or just say hi? Reach out.</p>
+      <div class="contact-links">
+        <a class="btn btn-ghost" href="https://github.com/ivomvicente-lang" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn btn-ghost" href="mailto:ivovicente7@gmail.com">Email</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 Ivo Vicente · Built with HTML/CSS/JS · Hosted free on GitHub Pages</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
