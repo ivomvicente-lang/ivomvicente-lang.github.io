@@ -28,8 +28,8 @@ document.addEventListener("keydown", (e) => {
 });
 
 const bookingForm = document.getElementById("bookingForm");
-const EMAIL_TO = "hello@silentvibes.example";
-const PHONE_HREF = "https://wa.me/0000000000000";
+const EMAIL_TO = "hello@albufeiracoworking.com";
+const PHONE_HREF = "https://wa.me/351926298278";
 
 bookingForm.addEventListener("submit", (e) => {
   e.preventDefault();
