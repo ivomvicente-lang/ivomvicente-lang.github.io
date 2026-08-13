@@ -1,0 +1,10 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'>
+  <defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='7c4dff'/><stop offset='1' stop-color='38e1ff'/></linearGradient></defs>
+  <rect width='800' height='600' fill='#0a0b12'/>
+  <rect width='800' height='600' fill='url(#g)' opacity='0.55'/>
+  <circle cx='680' cy='90' r='160' fill='#ffffff' opacity='0.08'/>
+  <circle cx='120' cy='500' r='200' fill='#ffffff' opacity='0.06'/>
+  <text x='400' y='270' font-size='130' text-anchor='middle'>🌙</text>
+  <text x='400' y='400' font-family='sans-serif' font-weight='700' font-size='34' text-anchor='middle' fill='#ffffff'>Outdoor event</text>
+  <text x='400' y='445' font-family='sans-serif' font-size='20' text-anchor='middle' fill='rgba(255,255,255,0.7)'>Placeholder — replace with your photos</text>
+</svg>
