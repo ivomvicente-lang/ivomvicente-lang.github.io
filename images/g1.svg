@@ -1,22 +1,23 @@
 <svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'>
   <defs>
-    <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
-      <stop offset='0' stop-color='ff5a1f'/>
-      <stop offset='1' stop-color='f2b705'/>
-    </linearGradient>
+    <radialGradient id='bg' cx='40%' cy='35%'><stop offset='0' stop-color='00e5ff' stop-opacity='0.18'/><stop offset='1' stop-color='#0a0a0f'/></radialGradient>
+    <radialGradient id='glow1'><stop offset='0' stop-color='00e5ff' stop-opacity='0.25'/><stop offset='1' stop-color='00e5ff' stop-opacity='0'/></radialGradient>
+    <radialGradient id='glow2'><stop offset='0' stop-color='ff00e5' stop-opacity='0.2'/><stop offset='1' stop-color='ff00e5' stop-opacity='0'/></radialGradient>
     <filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/></filter>
   </defs>
-  <rect width='800' height='600' fill='#faf6ec'/>
-  <rect width='800' height='600' fill='url(#g)' opacity='0.85'/>
-  <circle cx='680' cy='90' r='170' fill='#ffffff' opacity='0.18'/>
-  <circle cx='90' cy='520' r='210' fill='#1b1812' opacity='0.08'/>
-  <circle cx='180' cy='120' r='46' fill='#ffffff' opacity='0.3'/>
-  <circle cx='600' cy='480' r='70' fill='#ffffff' opacity='0.22'/>
+  <rect width='800' height='600' fill='#0a0a0f'/>
+  <rect width='800' height='600' fill='url(#bg)'/>
+  <ellipse cx='650' cy='120' rx='240' ry='180' fill='url(#glow1)'/>
+  <ellipse cx='160' cy='480' rx='200' ry='160' fill='url(#glow2)'/>
+  <circle cx='360' cy='290' r='8' fill='00e5ff' opacity='0.5'/>
+  <circle cx='520' cy='380' r='5' fill='ff00e5' opacity='0.4'/>
+  <circle cx='180' cy='200' r='6' fill='00e5ff' opacity='0.3'/>
   <g transform='rotate(-7 400 300)'>
-    <rect x='150' y='120' width='500' height='360' rx='16' fill='#ffffff' stroke='#1b1812' stroke-width='5'/>
-    <text x='400' y='290' font-size='120' text-anchor='middle'>🎧</text>
-    <text x='400' y='400' font-family='Fraunces, serif' font-weight='900' font-size='46' text-anchor='middle' fill='#1b1812'>Party at night</text>
+    <rect x='150' y='120' width='500' height='360' rx='16' fill='rgba(18,18,26,0.85)' stroke='00e5ff' stroke-width='2' stroke-opacity='0.5'/>
+    <text x='400' y='290' font-size='110' text-anchor='middle' filter='url(#n)' opacity='0.12'>🎧</text>
+    <text x='400' y='290' font-size='110' text-anchor='middle'>🎧</text>
+    <text x='400' y='395' font-family='sans-serif' font-weight='900' font-size='42' text-anchor='middle' fill='#e0e0f0'>Party at night</text>
   </g>
-  <text x='400' y='560' font-family='sans-serif' font-size='24' text-anchor='middle' fill='#1b1812' opacity='0.5'>your photo here — swap me</text>
-  <rect width='800' height='600' filter='url(#n)' opacity='0.09'/>
+  <text x='400' y='560' font-family='sans-serif' font-size='22' text-anchor='middle' fill='00e5ff' opacity='0.5'>your photo here</text>
+  <rect width='800' height='600' filter='url(#n)' opacity='0.05'/>
 </svg>
