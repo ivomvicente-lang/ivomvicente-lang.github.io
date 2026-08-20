@@ -319,48 +319,72 @@
     </section>
 
     <section id="booking" class="section">
-      <p class="section-label">07 — Book</p>
-      <h2 class="section-title">Get a quote</h2>
+      <p class="section-label">07 — Book &amp; Pay</p>
+      <h2 class="section-title">Book your silent disco</h2>
       <p class="section-sub">
-        Tell us about your event and we'll come back within 24 hours with availability and a quote.
+        Choose how to book — marketplaces for easy discovery, or direct for the best rate.
       </p>
-      <form class="booking-form" id="bookingForm">
-        <div class="form-row">
-          <label>
-            <span>Name *</span>
-            <input type="text" name="name" required placeholder="Your name" />
-          </label>
-          <label>
-            <span>Email *</span>
-            <input type="email" name="email" required placeholder="you@email.com" />
-          </label>
+
+      <div class="booking-options">
+        <div class="booking-channel">
+          <h3 class="channel-title">Book on a marketplace</h3>
+          <p class="channel-desc">Discoverable by tourists worldwide. They handle payments, you get exposure.</p>
+          <div class="marketplace-btns">
+            <a class="btn btn-marketplace btn-getyourguide" href="https://www.getyourguide.com/s?q=silent+disco+albufeira" target="_blank" rel="noopener">
+              <span class="btn-icon">🎯</span> List on GetYourGuide
+            </a>
+            <a class="btn btn-marketplace btn-viator" href="https://www.viator.com/searchResults/all?text=silent+disco+albufeira" target="_blank" rel="noopener">
+              <span class="btn-icon">🌍</span> List on Viator
+            </a>
+            <a class="btn btn-marketplace btn-airbnb" href="https://www.airbnb.com/s/experiences?query=silent+disco+albufeira" target="_blank" rel="noopener">
+              <span class="btn-icon">🏠</span> List on Airbnb Experiences
+            </a>
+          </div>
         </div>
-        <div class="form-row">
-          <label>
-            <span>Event date *</span>
-            <input type="date" name="date" required />
-          </label>
-          <label>
-            <span>Number of guests</span>
-            <input type="number" name="guests" min="1" placeholder="e.g. 80" />
-          </label>
+
+        <div class="booking-divider"><span>or</span></div>
+
+        <div class="booking-channel">
+          <h3 class="channel-title">Book direct — best price</h3>
+          <p class="channel-desc">No middleman fees. Pay a deposit now, balance on delivery.</p>
+          <div class="direct-packages">
+            <div class="direct-package">
+              <div class="pkg-info">
+                <span class="pkg-name">Starter Party</span>
+                <span class="pkg-detail">8 headphones + 1 transmitter</span>
+              </div>
+              <span class="pkg-price">€87</span>
+              <a class="btn btn-primary btn-sm" href="https://buy.stripe.com/your-link-starter" target="_blank" rel="noopener">Pay deposit</a>
+            </div>
+            <div class="direct-package">
+              <div class="pkg-info">
+                <span class="pkg-name">House Party Pack</span>
+                <span class="pkg-detail">15 headphones + 2 transmitters</span>
+              </div>
+              <span class="pkg-price">€145</span>
+              <a class="btn btn-primary btn-sm" href="https://buy.stripe.com/your-link-house" target="_blank" rel="noopener">Pay deposit</a>
+            </div>
+            <div class="direct-package featured-pkg">
+              <div class="pkg-info">
+                <span class="pkg-name">Full Silent Disco</span>
+                <span class="pkg-detail">30 headphones + 3 transmitters</span>
+              </div>
+              <span class="pkg-price">€215</span>
+              <a class="btn btn-primary btn-sm" href="https://buy.stripe.com/your-link-full" target="_blank" rel="noopener">Pay deposit</a>
+            </div>
+            <div class="direct-package">
+              <div class="pkg-info">
+                <span class="pkg-name">Premium Event</span>
+                <span class="pkg-detail">Full kit + charging station + support</span>
+              </div>
+              <span class="pkg-price">€249–279</span>
+              <a class="btn btn-primary btn-sm" href="https://buy.stripe.com/your-link-premium" target="_blank" rel="noopener">Pay deposit</a>
+            </div>
+          </div>
+          <p class="stripe-note">Payments processed securely by Stripe. Replace <code>your-link-*</code> with your actual Stripe Payment Links.</p>
         </div>
-        <label>
-          <span>Event type</span>
-          <select name="type">
-            <option value="wedding">Wedding</option>
-            <option value="party">Private party</option>
-            <option value="corporate">Corporate event</option>
-            <option value="festival">Festival</option>
-            <option value="other">Other</option>
-          </select>
-        </label>
-        <label>
-          <span>Message</span>
-          <textarea name="message" rows="4" placeholder="Tell us about your venue, DJ setup, timing..."></textarea>
-        </label>
-        <button class="btn btn-primary" type="submit">Send request</button>
-      </form>
+      </div>
+
       <div class="contact-cards">
         <div class="contact-card">
           <h4>WhatsApp / Phone</h4>

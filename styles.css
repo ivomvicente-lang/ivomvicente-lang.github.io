@@ -1209,6 +1209,164 @@ main {
     text-align: center;
   }
 
+.booking-options {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.booking-channel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.channel-title {
+  font-family: "Fraunces", serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.35rem;
+}
+
+.channel-desc {
+  color: var(--muted);
+  font-size: 0.92rem;
+  margin-bottom: 1.25rem;
+}
+
+.marketplace-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.btn-marketplace {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.12s;
+}
+
+.btn-marketplace:hover {
+  transform: translateY(-2px);
+}
+
+.btn-getyourguide:hover {
+  border-color: #00b67a;
+  box-shadow: 0 0 14px rgba(0, 182, 122, 0.3);
+}
+
+.btn-viator:hover {
+  border-color: #ffd800;
+  box-shadow: 0 0 14px rgba(255, 216, 0, 0.25);
+}
+
+.btn-airbnb:hover {
+  border-color: #ff5a5f;
+  box-shadow: 0 0 14px rgba(255, 90, 95, 0.3);
+}
+
+.btn-icon {
+  font-size: 1.1rem;
+}
+
+.booking-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.booking-divider::before,
+.booking-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.direct-packages {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.direct-package {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: border-color 0.2s;
+}
+
+.direct-package:hover {
+  border-color: rgba(0, 229, 255, 0.3);
+}
+
+.direct-package.featured-pkg {
+  border-color: var(--cyan);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.1);
+}
+
+.pkg-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.pkg-name {
+  font-weight: 700;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.pkg-detail {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.pkg-price {
+  font-family: "Fraunces", serif;
+  font-weight: 900;
+  font-size: 1.25rem;
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.2);
+  white-space: nowrap;
+}
+
+.stripe-note {
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.stripe-note code {
+  color: var(--magenta);
+  background: rgba(255, 0, 229, 0.1);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.78rem;
+}
+
   .contact-cards {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -1220,6 +1378,32 @@ main {
 
   .contact-card h4 {
     font-size: 0.72rem;
+  }
+
+  .marketplace-btns {
+    flex-direction: column;
+  }
+
+  .btn-marketplace {
+    justify-content: center;
+  }
+
+  .direct-package {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .pkg-info {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .pkg-price {
+    font-size: 1.1rem;
+  }
+
+  .direct-package .btn-sm {
+    margin-left: auto;
   }
 
   .footer {
