@@ -166,27 +166,6 @@ main {
   padding: 4rem 0;
 }
 
-.hero-bg {
-  background-image:
-    linear-gradient(180deg, rgba(10, 10, 15, 0.4) 0%, rgba(10, 10, 15, 0.85) 50%, rgba(10, 10, 15, 0.98) 100%),
-    url('https://picsum.photos/seed/neonnight/1920/1080');
-  background-size: cover;
-  background-position: center 40%;
-  border-bottom: 1px solid var(--border);
-  margin-left: -2rem;
-  margin-right: -2rem;
-  padding-left: 2rem;
-  padding-right: 2rem;
-}
-
-.hero-bg::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(0, 229, 255, 0.06), rgba(168, 85, 247, 0.06), rgba(255, 0, 229, 0.04));
-  pointer-events: none;
-}
-
 .hero-eyebrow {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.9rem;
@@ -208,7 +187,6 @@ main {
   letter-spacing: -0.02em;
   max-width: 16ch;
   color: #fff;
-  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.8), 0 0 60px rgba(0, 0, 0, 0.5);
 }
 
 .hero-accent {
@@ -240,7 +218,6 @@ main {
   margin-top: 1.75rem;
   color: var(--muted);
   font-size: 1.1rem;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.7);
 }
 
 .hero-cta {
@@ -248,8 +225,6 @@ main {
   gap: 1rem;
   margin-top: 2.5rem;
   flex-wrap: wrap;
-  position: relative;
-  z-index: 1;
 }
 
 .sticker {
@@ -262,7 +237,7 @@ main {
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: rgba(10, 10, 15, 0.6);
+  background: transparent;
   border: 2px solid var(--cyan);
   border-radius: 50%;
   font-family: "Fraunces", serif;
@@ -274,7 +249,6 @@ main {
   transform: rotate(12deg);
   box-shadow: 0 0 18px rgba(0, 229, 255, 0.3), inset 0 0 18px rgba(0, 229, 255, 0.05);
   animation: wobble 4s ease-in-out infinite;
-  z-index: 2;
 }
 
 @keyframes wobble {
@@ -287,8 +261,6 @@ main {
   gap: clamp(2rem, 6vw, 4rem);
   margin-top: 3.5rem;
   flex-wrap: wrap;
-  position: relative;
-  z-index: 1;
 }
 
 .stat {
@@ -769,6 +741,64 @@ main {
   transform: rotate(90deg);
 }
 
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.review-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.18s ease, border-color 0.25s;
+}
+
+.review-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.review-stars {
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.3);
+}
+
+.review-text {
+  color: var(--text);
+  font-size: 0.97rem;
+  font-style: italic;
+  line-height: 1.65;
+}
+
+.review-author {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+}
+
+.review-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.review-event {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--magenta);
+  text-shadow: 0 0 6px rgba(255, 0, 229, 0.2);
+}
+
 .faq-list {
   display: flex;
   flex-direction: column;
@@ -956,13 +986,6 @@ main {
   .hero {
     min-height: auto;
     padding-top: 5.5rem;
-  }
-
-  .hero-bg {
-    margin-left: -1rem;
-    margin-right: -1rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
   }
 
   .sticker {
