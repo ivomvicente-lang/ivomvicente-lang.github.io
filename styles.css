@@ -975,23 +975,270 @@ main {
 }
 
 @media (max-width: 640px) {
+  body {
+    background-size: 18px 18px, 28px 28px;
+  }
+
+  .nav {
+    padding: 0.8rem 1rem;
+  }
+
   .nav-links {
-    gap: 0.8rem;
+    gap: 0.6rem;
   }
 
   .nav-links a:not(.nav-cta) {
     display: none;
   }
 
+  .nav-cta {
+    padding: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  .brand {
+    font-size: 1.15rem;
+  }
+
+  .marquee {
+    font-size: 0.7rem;
+    padding: 0.4rem 0;
+  }
+
   .hero {
     min-height: auto;
-    padding-top: 5.5rem;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.8rem;
+  }
+
+  .hero-title {
+    font-size: 2.2rem;
+    max-width: 100%;
+  }
+
+  .hero-accent::after {
+    height: 0.28em;
+  }
+
+  .hero-blurb {
+    font-size: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    margin-top: 1.75rem;
+  }
+
+  .hero-cta .btn {
+    width: 100%;
+    text-align: center;
   }
 
   .sticker {
-    width: 92px;
-    height: 92px;
-    font-size: 0.85rem;
-    top: 3rem;
+    width: 80px;
+    height: 80px;
+    font-size: 0.75rem;
+    top: 2rem;
+    right: 0.5rem;
+  }
+
+  .hero-stats {
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .stat-num {
+    font-size: 2.2rem;
+  }
+
+  .stat-label {
+    font-size: 0.78rem;
+  }
+
+  .section {
+    padding: 3rem 0;
+  }
+
+  .section-label {
+    font-size: 0.72rem;
+  }
+
+  .section-title {
+    font-size: 1.7rem;
+  }
+
+  .section-sub {
+    font-size: 0.95rem;
+  }
+
+  .sub-title {
+    font-size: 1.15rem;
+  }
+
+  .tier-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .tier-card {
+    padding: 1.2rem;
+  }
+
+  .price-table {
+    font-size: 0.88rem;
+  }
+
+  .price-table td:last-child {
+    font-size: 0.92rem;
+  }
+
+  .card-grid,
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .price-card {
+    padding: 1.3rem;
+  }
+
+  .price-num {
+    font-size: 2rem;
+  }
+
+  .save-badge {
+    font-size: 0.7rem;
+    top: -0.75rem;
+    right: 0.75rem;
+  }
+
+  .deposit-card {
+    padding: 1.2rem;
+  }
+
+  .deposit-card ul {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .step {
+    padding: 1.2rem;
+  }
+
+  .step-num {
+    width: 2.2rem;
+    height: 2.2rem;
+    font-size: 1rem;
+  }
+
+  .gallery-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .gallery-item {
+    padding: 0.4rem 0.4rem 1.2rem;
+  }
+
+  .gallery-item figcaption {
+    font-size: 0.68rem;
+  }
+
+  .reviews-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .review-card {
+    padding: 1.2rem;
+  }
+
+  .review-text {
+    font-size: 0.92rem;
+  }
+
+  .faq-list {
+    gap: 0.7rem;
+  }
+
+  .faq-item {
+    padding: 0 1rem;
+  }
+
+  .faq-item summary {
+    font-size: 1rem;
+    padding: 1rem 0;
+  }
+
+  .faq-item summary::after {
+    font-size: 1.3rem;
+  }
+
+  .faq-item p {
+    font-size: 0.9rem;
+  }
+
+  .booking-form {
+    padding: 1.2rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .booking-form input,
+  .booking-form select,
+  .booking-form textarea {
+    padding: 0.6rem 0.75rem;
+    font-size: 16px;
+  }
+
+  .booking-form .btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .contact-cards {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .contact-card {
+    padding: 1.1rem 1.3rem;
+  }
+
+  .contact-card h4 {
+    font-size: 0.72rem;
+  }
+
+  .footer {
+    padding: 2rem 1rem;
+  }
+
+  .footer p {
+    font-size: 0.78rem;
+  }
+
+  .lightbox {
+    padding: 1rem;
+  }
+
+  .lightbox-close {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 2.4rem;
+    height: 2.4rem;
+    font-size: 1.4rem;
   }
 }
