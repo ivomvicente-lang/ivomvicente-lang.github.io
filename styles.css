@@ -543,7 +543,7 @@ main {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .card {
@@ -628,6 +628,8 @@ main {
 .price {
   color: var(--muted);
   font-size: 0.95rem;
+  padding: 0.3rem 0;
+  overflow: visible;
 }
 
 .price-num {
@@ -636,12 +638,14 @@ main {
   font-weight: 700;
   color: var(--cyan);
   text-shadow: 0 0 12px rgba(0, 229, 255, 0.4);
-  line-height: 1;
+  line-height: 1.4;
+  display: block;
+  padding-bottom: 0.15rem;
 }
 
 .price-sub {
   font-size: 0.85rem;
-  margin-top: -0.6rem;
+  margin-top: 0;
   color: var(--muted);
 }
 
