@@ -145,6 +145,26 @@
     footer{text-align:center;margin-top:2.5rem;padding-top:1.25rem;border-top:2px solid var(--line);font-family:"Lora",serif;font-style:italic;color:var(--muted);font-size:.85rem}
     @media(max-width:600px){body{padding:1rem}h1{font-size:1.5rem}.stamp{width:65px;height:65px;line-height:65px;font-size:.5rem}.cal-day{font-size:.75rem}.slot-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}.form-row{flex-direction:column}.booking-row{flex-direction:column;align-items:flex-start;gap:.4rem}}
     @media print{body{background:#fff;padding:1rem}.no-print{display:none!important}.qr-section{border:2px solid #000}}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(44,24,16,.6);z-index:1000;align-items:center;justify-content:center;padding:1rem}
+    .modal-overlay.show{display:flex}
+    .modal{background:var(--cream);border:2px solid var(--line);border-radius:12px;padding:2rem;max-width:480px;width:100%;box-shadow:0 12px 40px rgba(44,24,16,.2);position:relative}
+    .modal h3{font-family:"Playfair Display",serif;font-size:1.3rem;color:var(--dark-brown);margin-bottom:1rem;text-align:center}
+    .modal-detail{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid var(--line);font-size:.9rem}
+    .modal-detail:last-child{border-bottom:none}
+    .modal-detail .label{font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .modal-detail .value{font-weight:600;color:var(--ink);text-align:right}
+    .modal-detail .value.price{color:var(--green);font-size:1.05rem}
+    .modal-detail .value.free{color:var(--green)}
+    .modal-actions{display:flex;gap:.75rem;margin-top:1.5rem;justify-content:center}
+    .modal-actions .btn-send{padding:.7rem 2rem;font-family:"Playfair Display",serif;font-weight:700;font-size:.95rem;background:var(--green);color:#fff;border:none;border-radius:6px;cursor:pointer;box-shadow:0 2px 8px rgba(90,124,62,.25);transition:transform .12s,box-shadow .2s}
+    .modal-actions .btn-send:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(90,124,62,.35)}
+    .modal-actions .btn-send:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
+    .modal-actions .btn-cancel-modal{padding:.7rem 1.5rem;font-family:"JetBrains Mono",monospace;font-size:.8rem;background:none;color:var(--muted);border:1px solid var(--line);border-radius:6px;cursor:pointer;transition:border-color .2s,color .2s}
+    .modal-actions .btn-cancel-modal:hover{border-color:var(--red);color:var(--red)}
+    .modal-status{text-align:center;margin-top:1rem;font-family:"JetBrains Mono",monospace;font-size:.75rem;min-height:1.2em}
+    .modal-status.sending{color:var(--muted)}
+    .modal-status.sent{color:var(--green)}
+    .modal-status.error{color:var(--red)}
   </style>
 </head>
 <body>
@@ -239,6 +259,18 @@
         <p style="margin-bottom:.5rem">Albufeira Coworking · Rua do Ténis 13, 8200-186 Albufeira</p>
         <a href="privacy.html" style="color:var(--terracotta);font-size:.78rem">Privacy Policy</a>
       </footer>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+      <h3>📋 Review Booking</h3>
+      <div id="modalDetails"></div>
+      <div class="modal-status" id="modalStatus"></div>
+      <div class="modal-actions">
+        <button class="btn-cancel-modal" id="modalCancel">Cancel</button>
+        <button class="btn-send" id="modalSend">Confirm & Send</button>
+      </div>
     </div>
   </div>
 
@@ -538,6 +570,8 @@
       info.innerHTML=infoText+(error?'<br><span class="form-info error-msg">'+error+'</span>':'');
     }
 
+    let pendingBookingData=null;
+
     function confirmBooking(){
       const name=document.getElementById("bookName").value.trim();
       const contact=document.getElementById("bookContact").value.trim();
@@ -554,45 +588,93 @@
       if((!isAdmin||simulateClient)&&!isMember) price=calcPrice(dur);
       const status=(isAdmin&&!simulateClient)?"confirmed":"pending";
 
-      const all=getBookings();
-      all.push({
+      pendingBookingData={
         date:selectedDate,
         name:name,
         contact:contact||"",
         start:Math.min(slotStart,slotEnd),
         end:Math.max(slotStart,slotEnd),
+        durMin:durMin,
         isAdmin:isAdmin&&!simulateClient,
+        simulateClient:simulateClient,
         isMember:isMember,
         status:status,
-        price:price,
-        createdAt:new Date().toISOString()
-      });
+        price:price
+      };
+
+      const details=document.getElementById("modalDetails");
+      const priceText=isMember?"<span class='value free'>Free (member)</span>":price!=null?"<span class='value price'>€"+price.toFixed(2)+"</span>":"—";
+      const statusTag=status==="confirmed"?'<span class="b-confirmed-tag">Confirmed</span>':'<span class="b-pending-tag">⏳ Pending</span>';
+      const testTag=simulateClient?'<span style="color:var(--amber);font-size:.72rem;font-weight:600">[TEST MODE]</span>':'';
+
+      details.innerHTML=
+        '<div class="modal-detail"><span class="label">Name</span><span class="value">'+escHtml(name)+" "+testTag+'</span></div>'+
+        '<div class="modal-detail"><span class="label">Contact</span><span class="value">'+escHtml(contact||"Not provided")+'</span></div>'+
+        '<div class="modal-detail"><span class="label">Date</span><span class="value">'+selectedDate+'</span></div>'+
+        '<div class="modal-detail"><span class="label">Time</span><span class="value">'+slotTime(Math.min(slotStart,slotEnd))+' — '+slotTime(Math.max(slotStart,slotEnd))+'</span></div>'+
+        '<div class="modal-detail"><span class="label">Duration</span><span class="value">'+durMin+" min</span></div>"+
+        '<div class="modal-detail"><span class="label">Total</span>'+priceText+'</div>'+
+        '<div class="modal-detail"><span class="label">Status</span>'+statusTag+'</div>';
+
+      document.getElementById("modalStatus").textContent="";
+      document.getElementById("modalStatus").className="modal-status";
+      document.getElementById("modalSend").disabled=false;
+      document.getElementById("modalSend").textContent=simulateClient?"Confirm & Send (Test)":"Confirm & Send";
+      document.getElementById("confirmModal").classList.add("show");
+    }
+
+    document.getElementById("modalCancel").addEventListener("click",()=>{document.getElementById("confirmModal").classList.remove("show");pendingBookingData=null;});
+    document.getElementById("confirmModal").addEventListener("click",e=>{if(e.target===document.getElementById("confirmModal")){document.getElementById("confirmModal").classList.remove("show");pendingBookingData=null;}});
+
+    document.getElementById("modalSend").addEventListener("click",async()=>{
+      if(!pendingBookingData)return;
+      const b=pendingBookingData;
+      const btn=document.getElementById("modalSend");
+      const statusEl=document.getElementById("modalStatus");
+      btn.disabled=true;btn.textContent="Sending...";statusEl.textContent="Sending email...";statusEl.className="modal-status sending";
+
+      const all=getBookings();
+      all.push({...b,createdAt:new Date().toISOString()});
       saveBookings(all);
 
-      if(!isAdmin||simulateClient){
-        const priceText=isMember?"Free (member)":"€"+price.toFixed(2);
-        const subject=encodeURIComponent("Meeting Room Booking Request — "+selectedDate+" "+slotTime(Math.min(slotStart,slotEnd))+"-"+slotTime(Math.max(slotStart,slotEnd)));
-        const body=encodeURIComponent(
-          "BOOKING REQUEST\n\n"+
-          "Name: "+name+"\n"+
-          "Contact: "+(contact||"Not provided")+"\n"+
-          "Member: "+(isMember?"Yes":"No")+"\n"+
-          "Date: "+selectedDate+"\n"+
-          "Time: "+slotTime(Math.min(slotStart,slotEnd))+" — "+slotTime(Math.max(slotStart,slotEnd))+"\n"+
-          "Duration: "+durMin+" min\n"+
-          "Total: "+priceText+"\n\n"+
-          "Status: PENDING — awaiting confirmation\n\n"+
-          (isMember?"Member — no payment needed.":simulateClient?"[TEST] Simulated client booking — send payment link to "+contact+" and confirm in dashboard.":"Send payment link to "+contact+" and confirm booking in the dashboard.")
-        );
-        window.open("mailto:"+ADMIN_EMAIL+"?subject="+subject+"&body="+body,"_blank");
+      try{
+        const resp=await fetch("https://albufeira-meeting-api.onrender.com/api/send-booking",{
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({
+            name:b.name,
+            contact:b.contact,
+            date:b.date,
+            time:slotTime(b.start)+" — "+slotTime(b.end),
+            duration:b.durMin+" min",
+            price:b.price!=null?"€"+b.price.toFixed(2):"Free (member)",
+            member:b.isMember?"Yes":"No",
+            test:b.simulateClient
+          })
+        });
+        if(resp.ok){
+          statusEl.textContent="✓ Email sent to "+ADMIN_EMAIL;
+          statusEl.className="modal-status sent";
+        }else{
+          const err=await resp.json();
+          statusEl.textContent="✗ Failed: "+(err.error||"Server error");
+          statusEl.className="modal-status error";
+          btn.disabled=false;btn.textContent="Retry";
+        }
+      }catch(ex){
+        statusEl.textContent="✗ Cannot reach server. Try again later.";
+        statusEl.className="modal-status error";
+        btn.disabled=false;btn.textContent="Retry";
       }
 
-      slotStart=null;slotEnd=null;memberStatus=null;
+      slotStart=null;slotEnd=null;memberStatus=null;pendingBookingData=null;
       document.getElementById("bookName").value="";
       document.getElementById("bookContact").value="";
       document.getElementById("memberQuestion").style.display="none";
       renderDayView();
-    }
+
+      setTimeout(()=>{document.getElementById("confirmModal").classList.remove("show");},3000);
+    });
 
     function generateQR(){
       const url=window.location.href.split("?")[0];
