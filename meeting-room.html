@@ -662,9 +662,23 @@
           btn.disabled=false;btn.textContent="Retry";
         }
       }catch(ex){
-        statusEl.textContent="✗ Cannot reach server. Try again later.";
-        statusEl.className="modal-status error";
-        btn.disabled=false;btn.textContent="Retry";
+        const priceText=b.isMember?"Free (member)":"€"+b.price.toFixed(2);
+        const subject=encodeURIComponent("Meeting Room Booking Request — "+b.date+" "+slotTime(b.start)+"-"+slotTime(b.end));
+        const body=encodeURIComponent(
+          "BOOKING REQUEST\n\n"+
+          "Name: "+b.name+"\n"+
+          "Contact: "+(b.contact||"Not provided")+"\n"+
+          "Member: "+(b.isMember?"Yes":"No")+"\n"+
+          "Date: "+b.date+"\n"+
+          "Time: "+slotTime(b.start)+" — "+slotTime(b.end)+"\n"+
+          "Duration: "+b.durMin+" min\n"+
+          "Total: "+priceText+"\n\n"+
+          "Status: PENDING — awaiting confirmation\n\n"+
+          (b.isMember?"Member — no payment needed.":b.simulateClient?"[TEST] Simulated client — send payment link to "+b.contact+" and confirm in dashboard.":"Send payment link to "+b.contact+" and confirm booking in the dashboard.")
+        );
+        window.open("mailto:"+ADMIN_EMAIL+"?subject="+subject+"&body="+body,"_blank");
+        statusEl.textContent="✓ Email client opened (API offline — using mailto fallback)";
+        statusEl.className="modal-status sent";
       }
 
       slotStart=null;slotEnd=null;memberStatus=null;pendingBookingData=null;
