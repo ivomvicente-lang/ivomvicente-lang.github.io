@@ -36,6 +36,137 @@
         radial-gradient(circle at 80% 20%, rgba(107, 124, 78, 0.03) 0%, transparent 50%);
     }
 
+    /* ── Login Gate ── */
+    .login-gate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+    }
+
+    .login-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 8px 30px rgba(44, 24, 16, 0.08);
+    }
+
+    .login-card .stamp {
+      display: inline-block;
+      border: 3px solid var(--terracotta);
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      line-height: 80px;
+      text-align: center;
+      font-family: "Playfair Display", serif;
+      font-weight: 900;
+      font-size: 0.55rem;
+      color: var(--terracotta);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      transform: rotate(-12deg);
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+
+    .login-card .stamp::after {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border: 1px solid var(--terracotta);
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+
+    .login-card h2 {
+      font-family: "Playfair Display", serif;
+      font-weight: 900;
+      font-size: 1.5rem;
+      color: var(--dark-brown);
+      margin-bottom: 0.3rem;
+    }
+
+    .login-card .subtitle {
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255,255,255,0.6);
+      color: var(--ink);
+      text-align: center;
+      letter-spacing: 0.15em;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .login-input:focus {
+      border-color: var(--terracotta);
+    }
+
+    .login-input.error {
+      border-color: var(--red);
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    .login-btn {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.8rem;
+      font-family: "Playfair Display", serif;
+      font-weight: 700;
+      font-size: 1rem;
+      background: var(--terracotta);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(199, 91, 57, 0.25);
+      transition: transform 0.12s, box-shadow 0.2s;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(199, 91, 57, 0.35);
+    }
+
+    .login-error {
+      color: var(--red);
+      font-size: 0.82rem;
+      margin-top: 0.75rem;
+      font-style: italic;
+      min-height: 1.2em;
+    }
+
+    .lock-icon {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Dashboard ── */
+    .dashboard { display: none; }
+
     .container { max-width: 720px; margin: 0 auto; }
 
     header {
@@ -94,13 +225,35 @@
       font-size: 1rem;
     }
 
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
     .date-today {
       font-family: "JetBrains Mono", monospace;
       font-size: 0.75rem;
       color: var(--muted);
-      text-align: center;
-      margin-bottom: 1.5rem;
       letter-spacing: 0.05em;
+    }
+
+    .btn-lock {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      background: none;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 0.35rem 0.7rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-lock:hover {
+      border-color: var(--terracotta);
+      color: var(--terracotta);
     }
 
     .alert-box {
@@ -301,32 +454,58 @@
       .client { padding: 1.25rem; }
       .client-header { flex-direction: column; gap: 0.5rem; }
       .countdown { font-size: 2rem; }
+      .login-card { padding: 2rem 1.5rem; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
+
+  <!-- LOGIN GATE -->
+  <div class="login-gate" id="loginGate">
+    <div class="login-card">
+      <div class="lock-icon">🔒</div>
       <div class="stamp">Albufeira<br>Coworking</div>
-      <h1>Payment <em>Reminders</em></h1>
-      <p class="tagline">Virtual office quarterly renewals</p>
-    </header>
-
-    <div class="date-today" id="today"></div>
-
-    <div class="alert-box" id="alertBanner">
-      <h2>Heads up</h2>
-      <p id="alertText"></p>
+      <h2>Private Access</h2>
+      <p class="subtitle">Enter your credentials to continue</p>
+      <input type="email" class="login-input" id="emailInput" placeholder="Email" autofocus>
+      <input type="password" class="login-input" id="passInput" placeholder="Passcode" style="margin-top: 0.75rem;">
+      <button class="login-btn" id="loginBtn">Unlock</button>
+      <p class="login-error" id="loginError"></p>
     </div>
+  </div>
 
-    <div class="clients" id="clients"></div>
+  <!-- DASHBOARD (hidden until unlocked) -->
+  <div class="dashboard" id="dashboard">
+    <div class="container">
+      <header>
+        <div class="stamp">Albufeira<br>Coworking</div>
+        <h1>Payment <em>Reminders</em></h1>
+        <p class="tagline">Virtual office quarterly renewals</p>
+      </header>
 
-    <footer>Crafted with care in Albufeira, Portugal</footer>
+      <div class="top-bar">
+        <div class="date-today" id="today"></div>
+        <button class="btn-lock" id="lockBtn">🔒 Lock</button>
+      </div>
+
+      <div class="alert-box" id="alertBanner">
+        <h2>Heads up</h2>
+        <p id="alertText"></p>
+      </div>
+
+      <div class="clients" id="clients"></div>
+
+      <footer>Crafted with care in Albufeira, Portugal</footer>
+    </div>
   </div>
 
   <script>
+    const PASSCODE = "Technigo2020!";
+    const LOGIN_EMAIL = "hello@albufeiracoworking.com";
     const YOUR_EMAIL = "hello@albufeiracoworking.com";
     const REMIND_DAYS = 2;
+    const STORAGE_KEY = "ac_reminders_unlocked";
+    const STORAGE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 
     const clients = [
       {
@@ -346,6 +525,62 @@
       }
     ];
 
+    // ── Auth ──
+    function isUnlocked() {
+      try {
+        const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return data && (Date.now() - data.ts) < STORAGE_TTL;
+      } catch { return false; }
+    }
+
+    function unlock() {
+      const email = document.getElementById("emailInput");
+      const pass = document.getElementById("passInput");
+      const error = document.getElementById("loginError");
+
+      if (email.value.trim().toLowerCase() === LOGIN_EMAIL && pass.value === PASSCODE) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ts: Date.now() }));
+        document.getElementById("loginGate").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        render();
+      } else {
+        pass.classList.add("error");
+        email.classList.add("error");
+        error.textContent = "Invalid email or passcode. Try again.";
+        email.value = "";
+        pass.value = "";
+        email.focus();
+        setTimeout(() => { pass.classList.remove("error"); email.classList.remove("error"); }, 400);
+      }
+    }
+
+    function lock() {
+      localStorage.removeItem(STORAGE_KEY);
+      document.getElementById("dashboard").style.display = "none";
+      document.getElementById("loginGate").style.display = "flex";
+      document.getElementById("emailInput").value = "";
+      document.getElementById("passInput").value = "";
+      document.getElementById("loginError").textContent = "";
+      document.getElementById("emailInput").focus();
+    }
+
+    document.getElementById("loginBtn").addEventListener("click", unlock);
+    document.getElementById("passInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") unlock();
+    });
+    document.getElementById("emailInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") document.getElementById("passInput").focus();
+    });
+    document.getElementById("lockBtn").addEventListener("click", lock);
+
+    // Auto-unlock if session valid
+    if (isUnlocked()) {
+      document.getElementById("loginGate").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      render();
+    }
+
+    // ── Dashboard Logic ──
     function getNextRenewal(startStr) {
       const start = new Date(startStr + "T00:00:00");
       const now = new Date();
@@ -447,7 +682,6 @@
       }
     }
 
-    render();
     setInterval(render, 60000);
   </script>
 </body>
