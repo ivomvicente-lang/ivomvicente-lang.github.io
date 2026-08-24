@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
   <title>Meeting Room — Albufeira Coworking</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -101,6 +105,14 @@
     .btn-confirm:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
     .btn-clear{padding:.65rem 1rem;font-family:"JetBrains Mono",monospace;font-size:.78rem;background:none;color:var(--muted);border:1px solid var(--line);border-radius:4px;cursor:pointer;margin-left:.5rem}
     .btn-clear:hover{border-color:var(--red);color:var(--red)}
+    .btn-data{padding:.4rem .8rem;font-family:"JetBrains Mono",monospace;font-size:.68rem;color:var(--red);background:none;border:1px solid var(--red);border-radius:4px;cursor:pointer;opacity:.7;transition:opacity .2s}
+    .btn-data:hover{opacity:1}
+    .consent-banner{position:fixed;bottom:0;left:0;right:0;background:var(--dark-brown);color:var(--cream);padding:1rem 1.5rem;display:none;z-index:500;box-shadow:0 -4px 20px rgba(0,0,0,.3);font-size:.85rem}
+    .consent-banner.show{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+    .consent-banner p{margin:0;flex:1;min-width:250px;color:var(--paper)}
+    .consent-banner a{color:var(--terracotta);text-decoration:underline}
+    .consent-banner .btn-accept{padding:.5rem 1.2rem;font-family:"JetBrains Mono",monospace;font-size:.75rem;background:var(--terracotta);color:#fff;border:none;border-radius:4px;cursor:pointer;white-space:nowrap;font-weight:700}
+    .consent-banner .btn-accept:hover{box-shadow:0 2px 10px rgba(199,91,57,.4)}
 
     .qr-section{margin-top:2rem;padding:1.5rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;text-align:center;page-break-inside:avoid}
     .qr-section h3{font-family:"Playfair Display",serif;font-size:1.1rem;color:var(--dark-brown);margin-bottom:.5rem}
@@ -154,7 +166,10 @@
         <div>
           <span class="admin-badge" id="adminBadge" style="display:none">🔑 Admin</span>
         </div>
-        <button class="btn-lock" id="lockBtn">🔒 Lock</button>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <button class="btn-data" id="clearAllBtn">🗑 Clear My Data</button>
+          <button class="btn-lock" id="lockBtn">🔒 Lock</button>
+        </div>
       </div>
 
       <div id="calendarView">
@@ -203,8 +218,16 @@
         <button class="btn-print" onclick="window.print()">🖨 Print QR Code</button>
       </div>
 
-      <footer>Albufeira Coworking · Rua do Ténis 13, 8200-186 Albufeira</footer>
+      <footer>
+        <p style="margin-bottom:.5rem">Albufeira Coworking · Rua do Ténis 13, 8200-186 Albufeira</p>
+        <a href="privacy.html" style="color:var(--terracotta);font-size:.78rem">Privacy Policy</a>
+      </footer>
     </div>
+  </div>
+
+  <div class="consent-banner" id="consentBanner">
+    <p>This site uses localStorage to save your bookings on this device. No data is sent to any server. <a href="privacy.html">Read our Privacy Policy</a>.</p>
+    <button class="btn-accept" id="consentAccept">Accept & Continue</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
@@ -557,10 +580,57 @@
       slotStart=null;slotEnd=null;renderDayView();
     });
 
+    // ── GDPR: Consent Banner ──
+    const CONSENT_KEY = "ac_meet_consent";
+    function hasConsent() { return localStorage.getItem(CONSENT_KEY) === "yes"; }
+    function showConsent() {
+      if (!hasConsent()) document.getElementById("consentBanner").classList.add("show");
+    }
+    document.getElementById("consentAccept").addEventListener("click", () => {
+      localStorage.setItem(CONSENT_KEY, "yes");
+      document.getElementById("consentBanner").classList.remove("show");
+    });
+
+    // ── GDPR: Clear All Data ──
+    document.getElementById("clearAllBtn").addEventListener("click", () => {
+      if (confirm("This will delete ALL your bookings and login data from this browser. Continue?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(AUTH_KEY);
+        localStorage.removeItem(CONSENT_KEY);
+        isAdmin = false;
+        slotStart = null;
+        slotEnd = null;
+        document.getElementById("dashboard").style.display = "none";
+        document.getElementById("loginGate").style.display = "flex";
+        document.getElementById("emailInput").value = "";
+        document.getElementById("passInput").value = "";
+        document.getElementById("loginError").textContent = "";
+        showConsent();
+      }
+    });
+
+    // ── GDPR: Auto Data Retention (90 days) ──
+    function enforceRetention() {
+      const all = getBookings();
+      const now = Date.now();
+      const MS_90_DAYS = 90 * 24 * 60 * 60 * 1000;
+      const filtered = all.filter(b => {
+        const bookingDate = new Date(b.date + "T23:59:59");
+        return (now - bookingDate.getTime()) < MS_90_DAYS;
+      });
+      if (filtered.length !== all.length) {
+        saveBookings(filtered);
+      }
+    }
+    enforceRetention();
+
+    // ── Init ──
     if(isAuthed()){
       const d=JSON.parse(localStorage.getItem(AUTH_KEY));
       isAdmin=!!d.admin;
       showDashboard();
+    } else {
+      showConsent();
     }
   </script>
 </body>
