@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meeting Room — Albufeira Coworking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream:#faf6f0;--paper:#f3ece1;--brown:#5c4033;--dark-brown:#3a2618;
+      --terracotta:#c75b39;--olive:#6b7c4e;--gold:#c9a96e;--ink:#2c1810;
+      --muted:#8a7565;--line:#d4c5b2;--red:#b8382a;--green:#5a7c3e;--blue:#3a7ca5;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:"Lora",Georgia,serif;background:var(--cream);color:var(--ink);min-height:100vh;padding:1.5rem;background-image:radial-gradient(circle at 20% 50%,rgba(199,91,57,.03) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(107,124,78,.03) 0%,transparent 50%)}
+    .container{max-width:800px;margin:0 auto}
+
+    .login-gate{display:flex;align-items:center;justify-content:center;min-height:80vh}
+    .login-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:2.5rem 2rem;text-align:center;max-width:380px;width:100%;box-shadow:0 8px 30px rgba(44,24,16,.08)}
+    .lock-icon{font-size:1.6rem;margin-bottom:.5rem}
+    .stamp{display:inline-block;border:3px solid var(--terracotta);border-radius:50%;width:80px;height:80px;line-height:80px;text-align:center;font-family:"Playfair Display",serif;font-weight:900;font-size:.55rem;color:var(--terracotta);text-transform:uppercase;letter-spacing:.15em;transform:rotate(-12deg);margin-bottom:1.25rem;position:relative}
+    .stamp::after{content:"";position:absolute;inset:4px;border:1px solid var(--terracotta);border-radius:50%;opacity:.4}
+    .login-card h2{font-family:"Playfair Display",serif;font-weight:900;font-size:1.5rem;color:var(--dark-brown);margin-bottom:.3rem}
+    .login-card .subtitle{font-style:italic;color:var(--muted);font-size:.9rem;margin-bottom:1.5rem}
+    .login-input{width:100%;padding:.8rem 1rem;font-family:"JetBrains Mono",monospace;font-size:.95rem;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.6);color:var(--ink);text-align:center;letter-spacing:.08em;outline:none;transition:border-color .2s}
+    .login-input:focus{border-color:var(--terracotta)}
+    .login-input.error{border-color:var(--red);animation:shake .4s ease}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+    .login-btn{width:100%;margin-top:1rem;padding:.8rem;font-family:"Playfair Display",serif;font-weight:700;font-size:1rem;background:var(--terracotta);color:#fff;border:none;border-radius:6px;cursor:pointer;box-shadow:0 2px 8px rgba(199,91,57,.25);transition:transform .12s,box-shadow .2s}
+    .login-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(199,91,57,.35)}
+    .login-error{color:var(--red);font-size:.82rem;margin-top:.75rem;font-style:italic;min-height:1.2em}
+    .skip-link{display:inline-block;margin-top:1rem;color:var(--muted);font-size:.82rem;text-decoration:underline;cursor:pointer;font-style:italic}
+    .skip-link:hover{color:var(--ink)}
+
+    .dashboard{display:none}
+    header{text-align:center;padding-bottom:1.5rem;border-bottom:2px solid var(--line);margin-bottom:1.5rem}
+    header .stamp{margin-bottom:.75rem}
+    h1{font-family:"Playfair Display",serif;font-weight:900;font-size:2rem;color:var(--dark-brown);letter-spacing:-.02em;margin-bottom:.2rem}
+    h1 em{font-style:italic;color:var(--terracotta)}
+    .tagline{font-family:"Lora",serif;font-style:italic;color:var(--muted);font-size:.95rem}
+
+    .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem}
+    .admin-badge{font-family:"JetBrains Mono",monospace;font-size:.65rem;color:var(--blue);background:rgba(58,124,165,.1);border:1px solid var(--blue);padding:.25rem .6rem;border-radius:3px;text-transform:uppercase;letter-spacing:.06em}
+    .btn-lock{font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:.35rem .7rem;cursor:pointer;transition:border-color .2s,color .2s}
+    .btn-lock:hover{border-color:var(--terracotta);color:var(--terracotta)}
+
+    .calendar-nav{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-bottom:1.25rem}
+    .calendar-nav button{background:none;border:1px solid var(--line);border-radius:4px;padding:.4rem .8rem;font-family:"JetBrains Mono",monospace;font-size:.85rem;cursor:pointer;color:var(--ink);transition:border-color .2s}
+    .calendar-nav button:hover{border-color:var(--terracotta)}
+    .calendar-nav h3{font-family:"Playfair Display",serif;font-size:1.3rem;color:var(--dark-brown);min-width:200px;text-align:center}
+    .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:2rem}
+    .cal-header{font-family:"JetBrains Mono",monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:center;padding:.4rem 0}
+    .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-family:"JetBrains Mono",monospace;font-size:.85rem;font-weight:700;border-radius:6px;cursor:pointer;transition:transform .12s,box-shadow .2s;position:relative}
+    .cal-day.weekday{background:rgba(90,124,62,.1);color:var(--green);border:1px solid rgba(90,124,62,.2)}
+    .cal-day.weekday:hover{transform:scale(1.08);box-shadow:0 2px 10px rgba(90,124,62,.2);border-color:var(--green)}
+    .cal-day.weekend{background:rgba(184,56,42,.06);color:var(--red);border:1px solid rgba(184,56,42,.15);cursor:default;opacity:.6}
+    .cal-day.today{box-shadow:0 0 0 2px var(--terracotta)}
+    .cal-day.selected{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
+    .cal-day.past{opacity:.35;cursor:default}
+    .cal-day.empty{background:transparent;cursor:default;border:none}
+    .cal-day .dot{position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:var(--terracotta)}
+
+    .day-view{display:none}
+    .day-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+    .day-header h2{font-family:"Playfair Display",serif;font-size:1.4rem;color:var(--dark-brown)}
+    .btn-back{font-family:"JetBrains Mono",monospace;font-size:.75rem;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:.4rem .8rem;cursor:pointer;transition:border-color .2s}
+    .btn-back:hover{border-color:var(--terracotta);color:var(--terracotta)}
+
+    .bookings-list{margin-bottom:1.5rem}
+    .bookings-list h4{font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+    .booking-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1rem;background:var(--paper);border:1px solid var(--line);border-radius:6px;margin-bottom:.4rem}
+    .booking-row .b-info{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+    .booking-row .b-name{font-weight:700;font-size:.95rem}
+    .booking-row .b-time{font-family:"JetBrains Mono",monospace;font-size:.8rem;color:var(--terracotta)}
+    .booking-row .b-admin-tag{font-family:"JetBrains Mono",monospace;font-size:.6rem;color:var(--blue);background:rgba(58,124,165,.1);padding:.15rem .4rem;border-radius:3px}
+    .booking-row .btn-cancel{font-family:"JetBrains Mono",monospace;font-size:.65rem;color:var(--red);background:none;border:1px solid var(--red);border-radius:3px;padding:.2rem .5rem;cursor:pointer;opacity:.6;transition:opacity .2s}
+    .booking-row .btn-cancel:hover{opacity:1}
+    .no-bookings{color:var(--muted);font-style:italic;font-size:.9rem;padding:1rem 0}
+
+    .slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px;margin-bottom:1.5rem}
+    .slot{font-family:"JetBrains Mono",monospace;font-size:.78rem;text-align:center;padding:.55rem .3rem;border:1px solid var(--line);border-radius:4px;cursor:pointer;transition:all .15s;background:rgba(255,255,255,.5)}
+    .slot:hover:not(.booked):not(.disabled){border-color:var(--green);background:rgba(90,124,62,.08)}
+    .slot.selected{background:var(--green);color:#fff;border-color:var(--green)}
+    .slot.in-range{background:rgba(90,124,62,.15);border-color:var(--green)}
+    .slot.booked{background:rgba(184,56,42,.08);color:var(--red);border-color:rgba(184,56,42,.2);cursor:default;text-decoration:line-through;opacity:.6}
+    .slot.disabled{opacity:.3;cursor:default}
+
+    .booking-form{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:1.25rem;display:none}
+    .booking-form h4{font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem}
+    .form-row{display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:.75rem}
+    .form-group{display:flex;flex-direction:column;gap:.3rem;flex:1;min-width:150px}
+    .form-group label{font-family:"JetBrains Mono",monospace;font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .form-group input{padding:.6rem .8rem;font-family:"Lora",serif;font-size:.9rem;border:1px solid var(--line);border-radius:4px;background:rgba(255,255,255,.6);color:var(--ink);outline:none}
+    .form-group input:focus{border-color:var(--terracotta)}
+    .form-info{font-family:"JetBrains Mono",monospace;font-size:.72rem;color:var(--muted);margin-bottom:.75rem}
+    .form-info strong{color:var(--ink)}
+    .form-info.error-msg{color:var(--red);font-weight:700}
+    .btn-confirm{padding:.65rem 1.5rem;font-family:"Playfair Display",serif;font-weight:700;font-size:.9rem;background:var(--green);color:#fff;border:none;border-radius:4px;cursor:pointer;box-shadow:0 2px 8px rgba(90,124,62,.25);transition:transform .12s,box-shadow .2s}
+    .btn-confirm:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(90,124,62,.35)}
+    .btn-confirm:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
+    .btn-clear{padding:.65rem 1rem;font-family:"JetBrains Mono",monospace;font-size:.78rem;background:none;color:var(--muted);border:1px solid var(--line);border-radius:4px;cursor:pointer;margin-left:.5rem}
+    .btn-clear:hover{border-color:var(--red);color:var(--red)}
+
+    .qr-section{margin-top:2rem;padding:1.5rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;text-align:center;page-break-inside:avoid}
+    .qr-section h3{font-family:"Playfair Display",serif;font-size:1.1rem;color:var(--dark-brown);margin-bottom:.5rem}
+    .qr-section p{font-size:.85rem;color:var(--muted);margin-bottom:1rem;font-style:italic}
+    .qr-section img{margin:0 auto;display:block;border:1px solid var(--line);border-radius:6px}
+    .btn-print{margin-top:1rem;padding:.5rem 1.2rem;font-family:"JetBrains Mono",monospace;font-size:.75rem;background:var(--ink);color:var(--cream);border:none;border-radius:4px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
+
+    footer{text-align:center;margin-top:2.5rem;padding-top:1.25rem;border-top:2px solid var(--line);font-family:"Lora",serif;font-style:italic;color:var(--muted);font-size:.85rem}
+
+    @media(max-width:600px){
+      body{padding:1rem}
+      h1{font-size:1.5rem}
+      .stamp{width:65px;height:65px;line-height:65px;font-size:.5rem}
+      .cal-day{font-size:.75rem}
+      .slot-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
+      .form-row{flex-direction:column}
+      .booking-row{flex-direction:column;align-items:flex-start;gap:.4rem}
+    }
+    @media print{
+      body{background:#fff;padding:1rem}
+      .no-print{display:none!important}
+      .qr-section{border:2px solid #000}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-gate" id="loginGate">
+    <div class="login-card">
+      <div class="lock-icon">🔒</div>
+      <div class="stamp">Albufeira<br>Coworking</div>
+      <h2>Meeting Room</h2>
+      <p class="subtitle">Admin access</p>
+      <input type="email" class="login-input" id="emailInput" placeholder="Email">
+      <input type="password" class="login-input" id="passInput" placeholder="Passcode" style="margin-top:.75rem">
+      <button class="login-btn" id="loginBtn">Unlock</button>
+      <p class="login-error" id="loginError"></p>
+      <span class="skip-link" id="guestLink">Continue as Guest →</span>
+    </div>
+  </div>
+
+  <div class="dashboard" id="dashboard">
+    <div class="container">
+      <header>
+        <div class="stamp">Albufeira<br>Coworking</div>
+        <h1>Meeting <em>Room</em></h1>
+        <p class="tagline">Book your slot — shared workspace</p>
+      </header>
+
+      <div class="top-bar">
+        <div>
+          <span class="admin-badge" id="adminBadge" style="display:none">🔑 Admin</span>
+        </div>
+        <button class="btn-lock" id="lockBtn">🔒 Lock</button>
+      </div>
+
+      <div id="calendarView">
+        <div class="calendar-nav">
+          <button id="prevMonth">← Prev</button>
+          <h3 id="monthTitle"></h3>
+          <button id="nextMonth">Next →</button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+
+      <div class="day-view" id="dayView">
+        <div class="day-header">
+          <h2 id="dayTitle"></h2>
+          <button class="btn-back" id="backBtn">← Back to Calendar</button>
+        </div>
+
+        <div class="bookings-list" id="bookingsList">
+          <h4>Current Bookings</h4>
+          <div id="bookingsContainer"></div>
+        </div>
+
+        <h4 style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Select Time Slots (15 min intervals)</h4>
+        <div class="slot-grid" id="slotGrid"></div>
+
+        <div class="booking-form" id="bookingForm">
+          <h4>Confirm Booking</h4>
+          <div class="form-info" id="formInfo"></div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Your Name</label>
+              <input type="text" id="bookName" placeholder="e.g. Maria Silva">
+            </div>
+          </div>
+          <div>
+            <button class="btn-confirm" id="confirmBtn">Confirm Booking</button>
+            <button class="btn-clear" id="clearBtn">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="qr-section no-print" id="qrSection">
+        <h3>Scan to Book</h3>
+        <p>Show this QR code at the meeting room door</p>
+        <img id="qrImage" alt="QR Code">
+        <button class="btn-print" onclick="window.print()">🖨 Print QR Code</button>
+      </div>
+
+      <footer>Albufeira Coworking · Rua do Ténis 13, 8200-186 Albufeira</footer>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_EMAIL = "hello@albufeiracoworking.com";
+    const ADMIN_PASS = "Technigo2020!";
+    const STORAGE_KEY = "ac_meet_bookings";
+    const AUTH_KEY = "ac_meet_auth";
+    const AUTH_TTL = 7*24*60*60*1000;
+    const MAX_GUEST_SLOTS = 8;
+    const OPEN_HOUR = 8;
+    const CLOSE_HOUR = 18;
+    const SLOT_MIN = 15;
+
+    let isAdmin = false;
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let selectedDate = null;
+    let slotStart = null;
+    let slotEnd = null;
+
+    function getBookings() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch { return []; }
+    }
+    function saveBookings(b) { localStorage.setItem(STORAGE_KEY, JSON.stringify(b)); }
+
+    function slotTime(i) {
+      const totalMin = OPEN_HOUR*60 + i*SLOT_MIN;
+      const h = Math.floor(totalMin/60);
+      const m = totalMin%60;
+      return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
+    }
+    function totalSlots() { return ((CLOSE_HOUR-OPEN_HOUR)*60)/SLOT_MIN; }
+
+    function dateKey(y,m,d) {
+      return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
+    }
+    function fmtDateLong(d) {
+      return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+    }
+
+    function bookingsForDate(dk) {
+      return getBookings().filter(b=>b.date===dk);
+    }
+    function isSlotBooked(dk, si) {
+      return bookingsForDate(dk).some(b=>si>=b.start&&si<b.end);
+    }
+
+    function hasBookingsOnDate(y,m,d) {
+      return bookingsForDate(dateKey(y,m,d)).length > 0;
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById("calendarGrid");
+      grid.innerHTML = "";
+      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      document.getElementById("monthTitle").textContent = months[currentMonth]+" "+currentYear;
+
+      const dayNames = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+      dayNames.forEach(dn=>{
+        const h=document.createElement("div");
+        h.className="cal-header";
+        h.textContent=dn;
+        grid.appendChild(h);
+      });
+
+      const firstDay = new Date(currentYear,currentMonth,1);
+      let startIdx = (firstDay.getDay()+6)%7;
+      const daysInMonth = new Date(currentYear,currentMonth+1,0).getDate();
+      const today = new Date();
+
+      for(let i=0;i<startIdx;i++){
+        const e=document.createElement("div");
+        e.className="cal-day empty";
+        grid.appendChild(e);
+      }
+
+      for(let d=1;d<=daysInMonth;d++){
+        const el=document.createElement("div");
+        const dow = new Date(currentYear,currentMonth,d).getDay();
+        const isWeekend = dow===0||dow===6;
+        const isPast = new Date(currentYear,currentMonth,d)<new Date(today.getFullYear(),today.getMonth(),today.getDate());
+        const isToday = d===today.getDate()&&currentMonth===today.getMonth()&&currentYear===today.getFullYear();
+
+        el.className="cal-day "+(isWeekend?"weekend":"weekday");
+        if(isPast) el.classList.add("past");
+        if(isToday) el.classList.add("today");
+        if(selectedDate&&selectedDate===dateKey(currentYear,currentMonth,d)) el.classList.add("selected");
+
+        el.textContent=d;
+
+        if(!isWeekend&&!isPast&&hasBookingsOnDate(currentYear,currentMonth,d)){
+          const dot=document.createElement("span");
+          dot.className="dot";
+          el.appendChild(dot);
+        }
+
+        if(!isWeekend&&!isPast){
+          el.addEventListener("click",()=>openDay(currentYear,currentMonth,d));
+        }
+        grid.appendChild(el);
+      }
+    }
+
+    function openDay(y,m,d) {
+      selectedDate = dateKey(y,m,d);
+      document.getElementById("calendarView").style.display="none";
+      document.getElementById("dayView").style.display="block";
+      document.getElementById("dayTitle").textContent = fmtDateLong(new Date(y,m,d));
+      slotStart=null;
+      slotEnd=null;
+      renderDayView();
+      renderCalendar();
+    }
+
+    function renderDayView() {
+      const dk = selectedDate;
+      const bookings = bookingsForDate(dk);
+      const container = document.getElementById("bookingsContainer");
+
+      if(bookings.length===0){
+        container.innerHTML='<p class="no-bookings">No bookings yet for this day.</p>';
+      } else {
+        container.innerHTML="";
+        bookings.forEach((b,idx)=>{
+          const row=document.createElement("div");
+          row.className="booking-row";
+          const canCancel = isAdmin || b.name.toLowerCase()===(document.getElementById("bookName").value||"").toLowerCase();
+          row.innerHTML=
+            '<div class="b-info">'+
+              '<span class="b-name">'+escHtml(b.name)+'</span>'+
+              '<span class="b-time">'+slotTime(b.start)+' — '+slotTime(b.end)+'</span>'+
+              (b.isAdmin?'<span class="b-admin-tag">Admin</span>':'')+
+            '</div>'+
+            (isAdmin?'<button class="btn-cancel" data-idx="'+idx+'">Cancel</button>':'');
+          container.appendChild(row);
+        });
+        container.querySelectorAll(".btn-cancel").forEach(btn=>{
+          btn.addEventListener("click",function(){
+            const i=parseInt(this.dataset.idx);
+            const all=getBookings();
+            const dayBookings=bookingsForDate(dk);
+            const target=dayBookings[i];
+            const globalIdx=all.findIndex(b=>b.date===target.date&&b.start===target.start&&b.name===target.name);
+            if(globalIdx>=0){
+              all.splice(globalIdx,1);
+              saveBookings(all);
+              renderDayView();
+              renderCalendar();
+            }
+          });
+        });
+      }
+
+      renderSlots(dk, bookings);
+    }
+
+    function renderSlots(dk, bookings) {
+      const grid = document.getElementById("slotGrid");
+      grid.innerHTML="";
+      const n=totalSlots();
+      for(let i=0;i<n;i++){
+        const el=document.createElement("div");
+        el.className="slot";
+        el.textContent=slotTime(i);
+        const booked=isSlotBooked(dk,i);
+        if(booked){
+          el.classList.add("booked");
+        } else {
+          if(slotStart!==null&&slotEnd!==null&&i>=Math.min(slotStart,slotEnd)&&i<Math.max(slotStart,slotEnd)){
+            el.classList.add("selected");
+          } else if(slotStart!==null&&slotEnd===null&&i===slotStart){
+            el.classList.add("selected");
+          }
+          el.addEventListener("click",()=>selectSlot(i));
+        }
+        grid.appendChild(el);
+      }
+    }
+
+    function selectSlot(i) {
+      if(slotStart===null){
+        slotStart=i;
+        slotEnd=null;
+      } else if(slotEnd===null){
+        if(i===slotStart){slotStart=null;renderDayView();return;}
+        const s=Math.min(slotStart,i);
+        const e=Math.max(slotStart,i);
+        const dk=selectedDate;
+        let blocked=false;
+        for(let j=s;j<e;j++){
+          if(isSlotBooked(dk,j)){blocked=true;break;}
+        }
+        if(blocked){
+          slotStart=null;
+          slotEnd=null;
+          renderDayView();
+          return;
+        }
+        slotStart=s;
+        slotEnd=e;
+      } else {
+        slotStart=i;
+        slotEnd=null;
+      }
+      renderDayView();
+      updateForm();
+    }
+
+    function updateForm() {
+      const form=document.getElementById("bookingForm");
+      const info=document.getElementById("formInfo");
+      const confirmBtn=document.getElementById("confirmBtn");
+
+      if(slotStart===null){
+        form.style.display="none";
+        return;
+      }
+      form.style.display="block";
+
+      if(slotEnd===null){
+        info.innerHTML="Selected: <strong>"+slotTime(slotStart)+"</strong> — click another slot to set end time";
+        confirmBtn.disabled=true;
+        return;
+      }
+
+      const dur=slotEnd-slotStart;
+      const durHours=(dur*SLOT_MIN)/60;
+      const durMin=dur*SLOT_MIN;
+      let infoText="From <strong>"+slotTime(slotStart)+"</strong> to <strong>"+slotTime(slotEnd)+"</strong> — <strong>"+durMin+" min</strong>";
+      let error="";
+
+      if(!isAdmin&&dur>MAX_GUEST_SLOTS){
+        error="⚠ Guests can book max 2 hours. Admin login required for longer bookings.";
+        confirmBtn.disabled=true;
+      } else {
+        confirmBtn.disabled=false;
+      }
+
+      info.innerHTML=infoText+(error?'<br><span class="form-info error-msg">'+error+'</span>':'');
+    }
+
+    function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+    function confirmBooking() {
+      const name=document.getElementById("bookName").value.trim();
+      if(!name){document.getElementById("bookName").focus();return;}
+      if(slotStart===null||slotEnd===null)return;
+
+      const all=getBookings();
+      all.push({
+        date:selectedDate,
+        name:name,
+        start:Math.min(slotStart,slotEnd),
+        end:Math.max(slotStart,slotEnd),
+        isAdmin:isAdmin
+      });
+      saveBookings(all);
+      slotStart=null;
+      slotEnd=null;
+      document.getElementById("bookName").value="";
+      renderDayView();
+    }
+
+    function generateQR() {
+      const url = window.location.href.split("?")[0];
+      const qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=250x250&chl="+encodeURIComponent(url)+"&choe=UTF-8";
+      document.getElementById("qrImage").src = qrUrl;
+    }
+
+    function isAuthed() {
+      try {
+        const d=JSON.parse(localStorage.getItem(AUTH_KEY));
+        return d&&(Date.now()-d.ts)<AUTH_TTL;
+      } catch{return false;}
+    }
+
+    function doLogin() {
+      const email=document.getElementById("emailInput");
+      const pass=document.getElementById("passInput");
+      const err=document.getElementById("loginError");
+      if(email.value.trim().toLowerCase()===ADMIN_EMAIL&&pass.value===ADMIN_PASS){
+        isAdmin=true;
+        localStorage.setItem(AUTH_KEY,JSON.stringify({ts:Date.now(),admin:true}));
+        showDashboard();
+      } else {
+        pass.classList.add("error");
+        email.classList.add("error");
+        err.textContent="Invalid credentials. Try again.";
+        email.value="";pass.value="";
+        email.focus();
+        setTimeout(()=>{pass.classList.remove("error");email.classList.remove("error");},400);
+      }
+    }
+
+    function doGuest() {
+      isAdmin=false;
+      localStorage.removeItem(AUTH_KEY);
+      showDashboard();
+    }
+
+    function showDashboard() {
+      document.getElementById("loginGate").style.display="none";
+      document.getElementById("dashboard").style.display="block";
+      document.getElementById("adminBadge").style.display=isAdmin?"inline-block":"none";
+      document.getElementById("lockBtn").textContent=isAdmin?"🔒 Logout":"🔒";
+      renderCalendar();
+      generateQR();
+    }
+
+    function doLock() {
+      isAdmin=false;
+      localStorage.removeItem(AUTH_KEY);
+      document.getElementById("dashboard").style.display="none";
+      document.getElementById("loginGate").style.display="flex";
+      document.getElementById("emailInput").value="";
+      document.getElementById("passInput").value="";
+      document.getElementById("loginError").textContent="";
+      document.getElementById("emailInput").focus();
+      selectedDate=null;
+      slotStart=null;
+      slotEnd=null;
+    }
+
+    document.getElementById("loginBtn").addEventListener("click",doLogin);
+    document.getElementById("passInput").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin()});
+    document.getElementById("emailInput").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("passInput").focus()});
+    document.getElementById("guestLink").addEventListener("click",doGuest);
+    document.getElementById("lockBtn").addEventListener("click",doLock);
+    document.getElementById("prevMonth").addEventListener("click",()=>{
+      currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();
+    });
+    document.getElementById("nextMonth").addEventListener("click",()=>{
+      currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();
+    });
+    document.getElementById("backBtn").addEventListener("click",()=>{
+      document.getElementById("dayView").style.display="none";
+      document.getElementById("calendarView").style.display="block";
+      selectedDate=null;
+      slotStart=null;
+      slotEnd=null;
+      renderCalendar();
+    });
+    document.getElementById("confirmBtn").addEventListener("click",confirmBooking);
+    document.getElementById("clearBtn").addEventListener("click",()=>{
+      slotStart=null;slotEnd=null;renderDayView();
+    });
+
+    if(isAuthed()){
+      const d=JSON.parse(localStorage.getItem(AUTH_KEY));
+      isAdmin=!!d.admin;
+      showDashboard();
+    }
+  </script>
+</body>
+</html>
