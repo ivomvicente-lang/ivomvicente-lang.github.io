@@ -547,10 +547,12 @@
 
       const dur=Math.max(slotStart,slotEnd)-Math.min(slotStart,slotEnd);
       const durMin=dur*SLOT_MIN;
+      const isTest=name.toLowerCase()==="test";
+      const simulateClient=isTest;
       const isMember=memberStatus===true;
       let price=null;
-      if(!isAdmin&&!isMember) price=calcPrice(dur);
-      const status=isAdmin?"confirmed":"pending";
+      if((!isAdmin||simulateClient)&&!isMember) price=calcPrice(dur);
+      const status=(isAdmin&&!simulateClient)?"confirmed":"pending";
 
       const all=getBookings();
       all.push({
@@ -559,7 +561,7 @@
         contact:contact||"",
         start:Math.min(slotStart,slotEnd),
         end:Math.max(slotStart,slotEnd),
-        isAdmin:isAdmin,
+        isAdmin:isAdmin&&!simulateClient,
         isMember:isMember,
         status:status,
         price:price,
@@ -567,7 +569,7 @@
       });
       saveBookings(all);
 
-      if(!isAdmin){
+      if(!isAdmin||simulateClient){
         const priceText=isMember?"Free (member)":"€"+price.toFixed(2);
         const subject=encodeURIComponent("Meeting Room Booking Request — "+selectedDate+" "+slotTime(Math.min(slotStart,slotEnd))+"-"+slotTime(Math.max(slotStart,slotEnd)));
         const body=encodeURIComponent(
@@ -580,7 +582,7 @@
           "Duration: "+durMin+" min\n"+
           "Total: "+priceText+"\n\n"+
           "Status: PENDING — awaiting confirmation\n\n"+
-          (isMember?"Member — no payment needed.":"Send payment link to "+contact+" and confirm booking in the dashboard.")
+          (isMember?"Member — no payment needed.":simulateClient?"[TEST] Simulated client booking — send payment link to "+contact+" and confirm in dashboard.":"Send payment link to "+contact+" and confirm booking in the dashboard.")
         );
         window.open("mailto:"+ADMIN_EMAIL+"?subject="+subject+"&body="+body,"_blank");
       }
