@@ -59,6 +59,8 @@
     .cal-day.weekday{background:rgba(90,124,62,.1);color:var(--green);border:1px solid rgba(90,124,62,.2)}
     .cal-day.weekday:hover{transform:scale(1.08);box-shadow:0 2px 10px rgba(90,124,62,.2);border-color:var(--green)}
     .cal-day.weekend{background:rgba(184,56,42,.06);color:var(--red);border:1px solid rgba(184,56,42,.15);cursor:default;opacity:.6}
+    .cal-day.booked-day{background:rgba(201,169,110,.25);color:#8a6d2b;border:1px solid rgba(201,169,110,.5)}
+    .cal-day.booked-day::after{content:"";position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:18px;height:2px;background:var(--gold);border-radius:1px}
     .cal-day.today{box-shadow:0 0 0 2px var(--terracotta)}
     .cal-day.selected{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
     .cal-day.past{opacity:.35;cursor:default}
@@ -97,6 +99,8 @@
     .form-group label{font-family:"JetBrains Mono",monospace;font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
     .form-group input{padding:.6rem .8rem;font-family:"Lora",serif;font-size:.9rem;border:1px solid var(--line);border-radius:4px;background:rgba(255,255,255,.6);color:var(--ink);outline:none}
     .form-group input:focus{border-color:var(--terracotta)}
+    .info-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--muted);color:#fff;font-size:.6rem;font-weight:700;cursor:help;margin-left:.4rem;position:relative;font-style:normal;font-family:inherit}
+    .info-icon:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--dark-brown);color:var(--cream);padding:.5rem .75rem;border-radius:4px;font-size:.72rem;font-weight:400;white-space:nowrap;max-width:280px;white-space:normal;z-index:10;line-height:1.4}
     .form-info{font-family:"JetBrains Mono",monospace;font-size:.72rem;color:var(--muted);margin-bottom:.75rem}
     .form-info strong{color:var(--ink)}
     .form-info.error-msg{color:var(--red);font-weight:700}
@@ -203,6 +207,10 @@
               <label>Your Name</label>
               <input type="text" id="bookName" placeholder="e.g. Maria Silva">
             </div>
+            <div class="form-group">
+              <label>WhatsApp or Email <span class="info-icon" data-tip="We need a way to contact you if the meeting room needs to be freed for an emergency or schedule change. Your contact info is stored only in your browser and never shared.">i</span></label>
+              <input type="text" id="bookContact" placeholder="+351 912 345 678 or email">
+            </div>
           </div>
           <div>
             <button class="btn-confirm" id="confirmBtn">Confirm Booking</button>
@@ -239,6 +247,7 @@
     const AUTH_TTL = 7*24*60*60*1000;
     const MAX_GUEST_SLOTS = 8;
     const OPEN_HOUR = 8;
+    const GUEST_OPEN_HOUR = 9;
     const CLOSE_HOUR = 18;
     const SLOT_MIN = 15;
 
@@ -321,9 +330,7 @@
         el.textContent=d;
 
         if(!isWeekend&&!isPast&&hasBookingsOnDate(currentYear,currentMonth,d)){
-          const dot=document.createElement("span");
-          dot.className="dot";
-          el.appendChild(dot);
+          el.classList.add("booked-day");
         }
 
         if(!isWeekend&&!isPast){
@@ -361,6 +368,7 @@
             '<div class="b-info">'+
               '<span class="b-name">'+escHtml(b.name)+'</span>'+
               '<span class="b-time">'+slotTime(b.start)+' — '+slotTime(b.end)+'</span>'+
+              (b.contact?'<span class="b-admin-tag" title="Contact">'+escHtml(b.contact)+'</span>':'')+
               (b.isAdmin?'<span class="b-admin-tag">Admin</span>':'')+
             '</div>'+
             (isAdmin?'<button class="btn-cancel" data-idx="'+idx+'">Cancel</button>':'');
@@ -390,13 +398,19 @@
       const grid = document.getElementById("slotGrid");
       grid.innerHTML="";
       const n=totalSlots();
+      const effectiveOpen = isAdmin ? OPEN_HOUR : GUEST_OPEN_HOUR;
+      const startIdx = ((effectiveOpen - OPEN_HOUR)*60)/SLOT_MIN;
       for(let i=0;i<n;i++){
         const el=document.createElement("div");
         el.className="slot";
         el.textContent=slotTime(i);
         const booked=isSlotBooked(dk,i);
+        const beforeGuestOpen = !isAdmin && i < startIdx;
         if(booked){
           el.classList.add("booked");
+        } else if(beforeGuestOpen){
+          el.classList.add("disabled");
+          el.title="Admin only before 09:00";
         } else {
           if(slotStart!==null&&slotEnd!==null&&i>=Math.min(slotStart,slotEnd)&&i<Math.max(slotStart,slotEnd)){
             el.classList.add("selected");
@@ -410,6 +424,10 @@
     }
 
     function selectSlot(i) {
+      if(!isAdmin){
+        const guestStartIdx=((GUEST_OPEN_HOUR-OPEN_HOUR)*60)/SLOT_MIN;
+        if(i<guestStartIdx) return;
+      }
       if(slotStart===null){
         slotStart=i;
         slotEnd=null;
@@ -475,13 +493,16 @@
 
     function confirmBooking() {
       const name=document.getElementById("bookName").value.trim();
+      const contact=document.getElementById("bookContact").value.trim();
       if(!name){document.getElementById("bookName").focus();return;}
+      if(!contact){document.getElementById("bookContact").focus();return;}
       if(slotStart===null||slotEnd===null)return;
 
       const all=getBookings();
       all.push({
         date:selectedDate,
         name:name,
+        contact:contact,
         start:Math.min(slotStart,slotEnd),
         end:Math.max(slotStart,slotEnd),
         isAdmin:isAdmin
@@ -490,6 +511,7 @@
       slotStart=null;
       slotEnd=null;
       document.getElementById("bookName").value="";
+      document.getElementById("bookContact").value="";
       renderDayView();
     }
 
