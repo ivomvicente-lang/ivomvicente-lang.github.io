@@ -11,15 +11,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --cream:#faf6f0;--paper:#f3ece1;--brown:#5c4033;--dark-brown:#3a2618;
-      --terracotta:#c75b39;--olive:#6b7c4e;--gold:#c9a96e;--ink:#2c1810;
-      --muted:#8a7565;--line:#d4c5b2;--red:#b8382a;--green:#5a7c3e;--blue:#3a7ca5;
-    }
+    :root{--cream:#faf6f0;--paper:#f3ece1;--brown:#5c4033;--dark-brown:#3a2618;--terracotta:#c75b39;--olive:#6b7c4e;--gold:#c9a96e;--ink:#2c1810;--muted:#8a7565;--line:#d4c5b2;--red:#b8382a;--green:#5a7c3e;--blue:#3a7ca5;--amber:#d4930d}
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:"Lora",Georgia,serif;background:var(--cream);color:var(--ink);min-height:100vh;padding:1.5rem;background-image:radial-gradient(circle at 20% 50%,rgba(199,91,57,.03) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(107,124,78,.03) 0%,transparent 50%)}
     .container{max-width:800px;margin:0 auto}
-
     .login-gate{display:flex;align-items:center;justify-content:center;min-height:80vh}
     .login-card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:2.5rem 2rem;text-align:center;max-width:380px;width:100%;box-shadow:0 8px 30px rgba(44,24,16,.08)}
     .lock-icon{font-size:1.6rem;margin-bottom:.5rem}
@@ -36,23 +31,23 @@
     .login-error{color:var(--red);font-size:.82rem;margin-top:.75rem;font-style:italic;min-height:1.2em}
     .skip-link{display:inline-block;margin-top:1rem;color:var(--muted);font-size:.82rem;text-decoration:underline;cursor:pointer;font-style:italic}
     .skip-link:hover{color:var(--ink)}
-
     .dashboard{display:none}
     header{text-align:center;padding-bottom:1.5rem;border-bottom:2px solid var(--line);margin-bottom:1.5rem}
     header .stamp{margin-bottom:.75rem}
     h1{font-family:"Playfair Display",serif;font-weight:900;font-size:2rem;color:var(--dark-brown);letter-spacing:-.02em;margin-bottom:.2rem}
     h1 em{font-style:italic;color:var(--terracotta)}
     .tagline{font-family:"Lora",serif;font-style:italic;color:var(--muted);font-size:.95rem}
-
     .top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.5rem}
     .admin-badge{font-family:"JetBrains Mono",monospace;font-size:.65rem;color:var(--blue);background:rgba(58,124,165,.1);border:1px solid var(--blue);padding:.25rem .6rem;border-radius:3px;text-transform:uppercase;letter-spacing:.06em}
     .btn-lock{font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:.35rem .7rem;cursor:pointer;transition:border-color .2s,color .2s}
     .btn-lock:hover{border-color:var(--terracotta);color:var(--terracotta)}
-
     .calendar-nav{display:flex;align-items:center;justify-content:center;gap:1.5rem;margin-bottom:1.25rem}
     .calendar-nav button{background:none;border:1px solid var(--line);border-radius:4px;padding:.4rem .8rem;font-family:"JetBrains Mono",monospace;font-size:.85rem;cursor:pointer;color:var(--ink);transition:border-color .2s}
     .calendar-nav button:hover{border-color:var(--terracotta)}
     .calendar-nav h3{font-family:"Playfair Display",serif;font-size:1.3rem;color:var(--dark-brown);min-width:200px;text-align:center}
+    .calendar-legend{display:flex;gap:1rem;justify-content:center;margin-bottom:1rem;flex-wrap:wrap}
+    .legend-item{display:flex;align-items:center;gap:.4rem;font-family:"JetBrains Mono",monospace;font-size:.65rem;color:var(--muted)}
+    .legend-dot{width:12px;height:12px;border-radius:3px}
     .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:2rem}
     .cal-header{font-family:"JetBrains Mono",monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);text-align:center;padding:.4rem 0}
     .cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-family:"JetBrains Mono",monospace;font-size:.85rem;font-weight:700;border-radius:6px;cursor:pointer;transition:transform .12s,box-shadow .2s;position:relative}
@@ -61,37 +56,41 @@
     .cal-day.weekend{background:rgba(184,56,42,.06);color:var(--red);border:1px solid rgba(184,56,42,.15);cursor:default;opacity:.6}
     .cal-day.booked-day{background:rgba(201,169,110,.25);color:#8a6d2b;border:1px solid rgba(201,169,110,.5)}
     .cal-day.booked-day::after{content:"";position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:18px;height:2px;background:var(--gold);border-radius:1px}
+    .cal-day.pending-day{background:rgba(212,147,13,.12);color:var(--amber);border:1px solid rgba(212,147,13,.35)}
+    .cal-day.pending-day::after{content:"";position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:18px;height:2px;background:var(--amber);border-radius:1px}
     .cal-day.today{box-shadow:0 0 0 2px var(--terracotta)}
     .cal-day.selected{background:var(--terracotta);color:#fff;border-color:var(--terracotta)}
     .cal-day.past{opacity:.35;cursor:default}
+    .cal-day.out-of-range{opacity:.25;cursor:default;background:rgba(138,117,101,.05);color:var(--muted);border:1px dashed var(--line)}
     .cal-day.empty{background:transparent;cursor:default;border:none}
-    .cal-day .dot{position:absolute;bottom:4px;width:5px;height:5px;border-radius:50%;background:var(--terracotta)}
-
     .day-view{display:none}
     .day-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
     .day-header h2{font-family:"Playfair Display",serif;font-size:1.4rem;color:var(--dark-brown)}
     .btn-back{font-family:"JetBrains Mono",monospace;font-size:.75rem;color:var(--muted);background:none;border:1px solid var(--line);border-radius:4px;padding:.4rem .8rem;cursor:pointer;transition:border-color .2s}
     .btn-back:hover{border-color:var(--terracotta);color:var(--terracotta)}
-
     .bookings-list{margin-bottom:1.5rem}
     .bookings-list h4{font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
     .booking-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1rem;background:var(--paper);border:1px solid var(--line);border-radius:6px;margin-bottom:.4rem}
+    .booking-row.pending{border-left:3px solid var(--amber);background:rgba(212,147,13,.04)}
     .booking-row .b-info{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
     .booking-row .b-name{font-weight:700;font-size:.95rem}
     .booking-row .b-time{font-family:"JetBrains Mono",monospace;font-size:.8rem;color:var(--terracotta)}
     .booking-row .b-admin-tag{font-family:"JetBrains Mono",monospace;font-size:.6rem;color:var(--blue);background:rgba(58,124,165,.1);padding:.15rem .4rem;border-radius:3px}
+    .booking-row .b-pending-tag{font-family:"JetBrains Mono",monospace;font-size:.6rem;color:var(--amber);background:rgba(212,147,13,.1);padding:.15rem .4rem;border-radius:3px}
+    .booking-row .b-confirmed-tag{font-family:"JetBrains Mono",monospace;font-size:.6rem;color:var(--green);background:rgba(90,124,62,.1);padding:.15rem .4rem;border-radius:3px}
     .booking-row .btn-cancel{font-family:"JetBrains Mono",monospace;font-size:.65rem;color:var(--red);background:none;border:1px solid var(--red);border-radius:3px;padding:.2rem .5rem;cursor:pointer;opacity:.6;transition:opacity .2s}
     .booking-row .btn-cancel:hover{opacity:1}
+    .booking-row .btn-confirm-booking{font-family:"JetBrains Mono",monospace;font-size:.65rem;color:#fff;background:var(--green);border:none;border-radius:3px;padding:.25rem .6rem;cursor:pointer;transition:opacity .2s}
+    .booking-row .btn-confirm-booking:hover{opacity:.85}
     .no-bookings{color:var(--muted);font-style:italic;font-size:.9rem;padding:1rem 0}
-
     .slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:6px;margin-bottom:1.5rem}
     .slot{font-family:"JetBrains Mono",monospace;font-size:.78rem;text-align:center;padding:.55rem .3rem;border:1px solid var(--line);border-radius:4px;cursor:pointer;transition:all .15s;background:rgba(255,255,255,.5)}
     .slot:hover:not(.booked):not(.disabled){border-color:var(--green);background:rgba(90,124,62,.08)}
     .slot.selected{background:var(--green);color:#fff;border-color:var(--green)}
     .slot.in-range{background:rgba(90,124,62,.15);border-color:var(--green)}
     .slot.booked{background:rgba(184,56,42,.08);color:var(--red);border-color:rgba(184,56,42,.2);cursor:default;text-decoration:line-through;opacity:.6}
+    .slot.pending-slot{background:rgba(212,147,13,.1);color:var(--amber);border-color:rgba(212,147,13,.3);cursor:default;opacity:.7}
     .slot.disabled{opacity:.3;cursor:default}
-
     .booking-form{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:1.25rem;display:none}
     .booking-form h4{font-family:"JetBrains Mono",monospace;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem}
     .form-row{display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:.75rem}
@@ -100,10 +99,11 @@
     .form-group input{padding:.6rem .8rem;font-family:"Lora",serif;font-size:.9rem;border:1px solid var(--line);border-radius:4px;background:rgba(255,255,255,.6);color:var(--ink);outline:none}
     .form-group input:focus{border-color:var(--terracotta)}
     .info-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--muted);color:#fff;font-size:.6rem;font-weight:700;cursor:help;margin-left:.4rem;position:relative;font-style:normal;font-family:inherit}
-    .info-icon:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--dark-brown);color:var(--cream);padding:.5rem .75rem;border-radius:4px;font-size:.72rem;font-weight:400;white-space:nowrap;max-width:280px;white-space:normal;z-index:10;line-height:1.4}
+    .info-icon:hover::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--dark-brown);color:var(--cream);padding:.5rem .75rem;border-radius:4px;font-size:.72rem;font-weight:400;max-width:280px;white-space:normal;z-index:10;line-height:1.4}
     .form-info{font-family:"JetBrains Mono",monospace;font-size:.72rem;color:var(--muted);margin-bottom:.75rem}
     .form-info strong{color:var(--ink)}
     .form-info.error-msg{color:var(--red);font-weight:700}
+    .form-price{font-family:"JetBrains Mono",monospace;font-size:1.1rem;font-weight:700;color:var(--green);margin:.5rem 0}
     .btn-confirm{padding:.65rem 1.5rem;font-family:"Playfair Display",serif;font-weight:700;font-size:.9rem;background:var(--green);color:#fff;border:none;border-radius:4px;cursor:pointer;box-shadow:0 2px 8px rgba(90,124,62,.25);transition:transform .12s,box-shadow .2s}
     .btn-confirm:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(90,124,62,.35)}
     .btn-confirm:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
@@ -116,34 +116,17 @@
     .consent-banner p{margin:0;flex:1;min-width:250px;color:var(--paper)}
     .consent-banner a{color:var(--terracotta);text-decoration:underline}
     .consent-banner .btn-accept{padding:.5rem 1.2rem;font-family:"JetBrains Mono",monospace;font-size:.75rem;background:var(--terracotta);color:#fff;border:none;border-radius:4px;cursor:pointer;white-space:nowrap;font-weight:700}
-    .consent-banner .btn-accept:hover{box-shadow:0 2px 10px rgba(199,91,57,.4)}
-
     .qr-section{margin-top:2rem;padding:1.5rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;text-align:center;page-break-inside:avoid}
     .qr-section h3{font-family:"Playfair Display",serif;font-size:1.1rem;color:var(--dark-brown);margin-bottom:.5rem}
     .qr-section p{font-size:.85rem;color:var(--muted);margin-bottom:1rem;font-style:italic}
     .qr-section canvas,.qr-section img{margin:0 auto;display:block;border:1px solid var(--line);border-radius:6px}
     .btn-print{margin-top:1rem;padding:.5rem 1.2rem;font-family:"JetBrains Mono",monospace;font-size:.75rem;background:var(--ink);color:var(--cream);border:none;border-radius:4px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
-
     footer{text-align:center;margin-top:2.5rem;padding-top:1.25rem;border-top:2px solid var(--line);font-family:"Lora",serif;font-style:italic;color:var(--muted);font-size:.85rem}
-
-    @media(max-width:600px){
-      body{padding:1rem}
-      h1{font-size:1.5rem}
-      .stamp{width:65px;height:65px;line-height:65px;font-size:.5rem}
-      .cal-day{font-size:.75rem}
-      .slot-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
-      .form-row{flex-direction:column}
-      .booking-row{flex-direction:column;align-items:flex-start;gap:.4rem}
-    }
-    @media print{
-      body{background:#fff;padding:1rem}
-      .no-print{display:none!important}
-      .qr-section{border:2px solid #000}
-    }
+    @media(max-width:600px){body{padding:1rem}h1{font-size:1.5rem}.stamp{width:65px;height:65px;line-height:65px;font-size:.5rem}.cal-day{font-size:.75rem}.slot-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}.form-row{flex-direction:column}.booking-row{flex-direction:column;align-items:flex-start;gap:.4rem}}
+    @media print{body{background:#fff;padding:1rem}.no-print{display:none!important}.qr-section{border:2px solid #000}}
   </style>
 </head>
 <body>
-
   <div class="login-gate" id="loginGate">
     <div class="login-card">
       <div class="lock-icon">🔒</div>
@@ -163,13 +146,10 @@
       <header>
         <div class="stamp">Albufeira<br>Coworking</div>
         <h1>Meeting <em>Room</em></h1>
-        <p class="tagline">Book your slot — shared workspace</p>
+        <p class="tagline">Book your slot — shared workspace · €15/h</p>
       </header>
-
       <div class="top-bar">
-        <div>
-          <span class="admin-badge" id="adminBadge" style="display:none">🔑 Admin</span>
-        </div>
+        <div><span class="admin-badge" id="adminBadge" style="display:none">🔑 Admin</span></div>
         <div style="display:flex;gap:.5rem;align-items:center">
           <button class="btn-data" id="clearAllBtn" style="display:none">🗑 Clear All Data</button>
           <button class="btn-lock" id="lockBtn">🔒 Lock</button>
@@ -182,6 +162,7 @@
           <h3 id="monthTitle"></h3>
           <button id="nextMonth">Next →</button>
         </div>
+        <div class="calendar-legend" id="calendarLegend"></div>
         <div class="calendar-grid" id="calendarGrid"></div>
       </div>
 
@@ -190,18 +171,16 @@
           <h2 id="dayTitle"></h2>
           <button class="btn-back" id="backBtn">← Back to Calendar</button>
         </div>
-
         <div class="bookings-list" id="bookingsList">
           <h4>Current Bookings</h4>
           <div id="bookingsContainer"></div>
         </div>
-
         <h4 style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Select Time Slots (15 min intervals)</h4>
         <div class="slot-grid" id="slotGrid"></div>
-
         <div class="booking-form" id="bookingForm">
-          <h4>Confirm Booking</h4>
+          <h4>Request Booking</h4>
           <div class="form-info" id="formInfo"></div>
+          <div class="form-price" id="formPrice" style="display:none"></div>
           <div class="form-row">
             <div class="form-group">
               <label>Your Name</label>
@@ -213,19 +192,18 @@
             </div>
           </div>
           <div>
-            <button class="btn-confirm" id="confirmBtn">Confirm Booking</button>
+            <button class="btn-confirm" id="confirmBtn">Request Booking</button>
             <button class="btn-clear" id="clearBtn">Clear</button>
           </div>
         </div>
       </div>
 
-      <div class="qr-section no-print" id="qrSection">
+      <div class="qr-section no-print">
         <h3>Scan to Book</h3>
         <p>Show this QR code at the meeting room door</p>
         <div id="qrImage" style="display:inline-block"></div>
         <button class="btn-print" onclick="window.print()">🖨 Print QR Code</button>
       </div>
-
       <footer>
         <p style="margin-bottom:.5rem">Albufeira Coworking · Rua do Ténis 13, 8200-186 Albufeira</p>
         <a href="privacy.html" style="color:var(--terracotta);font-size:.78rem">Privacy Policy</a>
@@ -240,121 +218,129 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script>
-    const ADMIN_EMAIL = "hello@albufeiracoworking.com";
-    const ADMIN_PASS = "Technigo2020!";
-    const STORAGE_KEY = "ac_meet_bookings";
-    const AUTH_KEY = "ac_meet_auth";
-    const AUTH_TTL = 7*24*60*60*1000;
-    const MAX_GUEST_SLOTS = 8;
-    const OPEN_HOUR = 8;
-    const GUEST_OPEN_HOUR = 9;
-    const CLOSE_HOUR = 18;
-    const SLOT_MIN = 15;
+    const ADMIN_EMAIL="hello@albufeiracoworking.com";
+    const ADMIN_PASS="Technigo2020!";
+    const STORAGE_KEY="ac_meet_bookings";
+    const AUTH_KEY="ac_meet_auth";
+    const AUTH_TTL=7*24*60*60*1000;
+    const MAX_GUEST_SLOTS=8;
+    const OPEN_HOUR=8;
+    const GUEST_OPEN_HOUR=9;
+    const CLOSE_HOUR=18;
+    const SLOT_MIN=15;
+    const HOURLY_RATE=15;
+    const MAX_ADVANCE_DAYS=5;
 
-    let isAdmin = false;
-    let currentMonth = new Date().getMonth();
-    let currentYear = new Date().getFullYear();
-    let selectedDate = null;
-    let slotStart = null;
-    let slotEnd = null;
+    let isAdmin=false;
+    let currentMonth=new Date().getMonth();
+    let currentYear=new Date().getFullYear();
+    let selectedDate=null;
+    let slotStart=null;
+    let slotEnd=null;
 
-    function getBookings() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-      catch { return []; }
-    }
-    function saveBookings(b) { localStorage.setItem(STORAGE_KEY, JSON.stringify(b)); }
+    function getBookings(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[]}catch{return[]}}
+    function saveBookings(b){localStorage.setItem(STORAGE_KEY,JSON.stringify(b))}
+    function slotTime(i){const t=OPEN_HOUR*60+i*SLOT_MIN;const h=Math.floor(t/60);const m=t%60;return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")}
+    function totalSlots(){return((CLOSE_HOUR-OPEN_HOUR)*60)/SLOT_MIN}
+    function dateKey(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0")}
+    function fmtDateLong(d){return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
+    function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 
-    function slotTime(i) {
-      const totalMin = OPEN_HOUR*60 + i*SLOT_MIN;
-      const h = Math.floor(totalMin/60);
-      const m = totalMin%60;
-      return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
-    }
-    function totalSlots() { return ((CLOSE_HOUR-OPEN_HOUR)*60)/SLOT_MIN; }
-
-    function dateKey(y,m,d) {
-      return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");
-    }
-    function fmtDateLong(d) {
-      return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+    function isWithinAdvanceWindow(y,m,d){
+      const today=new Date();today.setHours(0,0,0,0);
+      const target=new Date(y,m,d);target.setHours(0,0,0,0);
+      const maxDate=new Date(today);maxDate.setDate(maxDate.getDate()+MAX_ADVANCE_DAYS);
+      return target>=today&&target<=maxDate;
     }
 
-    function bookingsForDate(dk) {
-      return getBookings().filter(b=>b.date===dk);
-    }
-    function isSlotBooked(dk, si) {
-      return bookingsForDate(dk).some(b=>si>=b.start&&si<b.end);
+    function bookingsForDate(dk){return getBookings().filter(b=>b.date===dk)}
+    function confirmedBookingsForDate(dk){return getBookings().filter(b=>b.date===dk&&(b.status==="confirmed"||b.status==="pending"))}
+    function isSlotBooked(dk,si){return confirmedBookingsForDate(dk).some(b=>si>=b.start&&si<b.end)}
+    function isSlotPending(dk,si){return confirmedBookingsForDate(dk).some(b=>b.status==="pending"&&si>=b.start&&si<b.end)}
+    function hasBookingsOnDate(y,m,d){return confirmedBookingsForDate(dateKey(y,m,d)).length>0}
+    function hasPendingOnDate(y,m,d){return bookingsForDate(dateKey(y,m,d)).some(b=>b.status==="pending")}
+    function hasConfirmedOnDate(y,m,d){return bookingsForDate(dateKey(y,m,d)).some(b=>b.status==="confirmed")}
+
+    function calcPrice(slots){
+      const hours=(slots*SLOT_MIN)/60;
+      return Math.round(hours*HOURLY_RATE*100)/100;
     }
 
-    function hasBookingsOnDate(y,m,d) {
-      return bookingsForDate(dateKey(y,m,d)).length > 0;
+    function renderLegend(){
+      const el=document.getElementById("calendarLegend");
+      if(isAdmin){
+        el.innerHTML='<div class="legend-item"><div class="legend-dot" style="background:rgba(90,124,62,.2);border:1px solid rgba(90,124,62,.4)"></div>Available</div>'+
+          '<div class="legend-item"><div class="legend-dot" style="background:rgba(201,169,110,.4);border:1px solid var(--gold)"></div>Confirmed</div>'+
+          '<div class="legend-item"><div class="legend-dot" style="background:rgba(212,147,13,.2);border:1px solid var(--amber)"></div>Pending</div>'+
+          '<div class="legend-item"><div class="legend-dot" style="background:rgba(184,56,42,.15);border:1px solid var(--red)"></div>Weekend</div>';
+      } else {
+        el.innerHTML='<div class="legend-item"><div class="legend-dot" style="background:rgba(90,124,62,.2);border:1px solid rgba(90,124,62,.4)"></div>Available</div>'+
+          '<div class="legend-item"><div class="legend-dot" style="background:rgba(201,169,110,.4);border:1px solid var(--gold)"></div>Booked</div>'+
+          '<div class="legend-item" style="color:var(--muted);opacity:.6"><div class="legend-dot" style="background:rgba(138,117,101,.1);border:1px dashed var(--line)"></div>Out of range</div>';
+      }
     }
 
-    function renderCalendar() {
-      const grid = document.getElementById("calendarGrid");
-      grid.innerHTML = "";
-      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-      document.getElementById("monthTitle").textContent = months[currentMonth]+" "+currentYear;
+    function renderCalendar(){
+      const grid=document.getElementById("calendarGrid");
+      grid.innerHTML="";
+      const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+      document.getElementById("monthTitle").textContent=months[currentMonth]+" "+currentYear;
+      renderLegend();
 
-      const dayNames = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-      dayNames.forEach(dn=>{
-        const h=document.createElement("div");
-        h.className="cal-header";
-        h.textContent=dn;
-        grid.appendChild(h);
+      ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].forEach(dn=>{
+        const h=document.createElement("div");h.className="cal-header";h.textContent=dn;grid.appendChild(h);
       });
 
-      const firstDay = new Date(currentYear,currentMonth,1);
-      let startIdx = (firstDay.getDay()+6)%7;
-      const daysInMonth = new Date(currentYear,currentMonth+1,0).getDate();
-      const today = new Date();
+      const firstDay=new Date(currentYear,currentMonth,1);
+      let startIdx=(firstDay.getDay()+6)%7;
+      const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+      const today=new Date();
 
-      for(let i=0;i<startIdx;i++){
-        const e=document.createElement("div");
-        e.className="cal-day empty";
-        grid.appendChild(e);
-      }
+      for(let i=0;i<startIdx;i++){const e=document.createElement("div");e.className="cal-day empty";grid.appendChild(e);}
 
       for(let d=1;d<=daysInMonth;d++){
         const el=document.createElement("div");
-        const dow = new Date(currentYear,currentMonth,d).getDay();
-        const isWeekend = dow===0||dow===6;
-        const isPast = new Date(currentYear,currentMonth,d)<new Date(today.getFullYear(),today.getMonth(),today.getDate());
-        const isToday = d===today.getDate()&&currentMonth===today.getMonth()&&currentYear===today.getFullYear();
+        const dow=new Date(currentYear,currentMonth,d).getDay();
+        const isWeekend=dow===0||dow===6;
+        const isPast=new Date(currentYear,currentMonth,d)<new Date(today.getFullYear(),today.getMonth(),today.getDate());
+        const isToday=d===today.getDate()&&currentMonth===today.getMonth()&&currentYear===today.getFullYear();
+        const inWindow=isWithinAdvanceWindow(currentYear,currentMonth,d);
 
         el.className="cal-day "+(isWeekend?"weekend":"weekday");
         if(isPast) el.classList.add("past");
         if(isToday) el.classList.add("today");
         if(selectedDate&&selectedDate===dateKey(currentYear,currentMonth,d)) el.classList.add("selected");
 
+        if(!isAdmin&&!inWindow&&!isPast&&!isWeekend) el.classList.add("out-of-range");
+
         el.textContent=d;
 
-        if(!isWeekend&&!isPast&&hasBookingsOnDate(currentYear,currentMonth,d)){
-          el.classList.add("booked-day");
-        }
-
-        if(!isWeekend&&!isPast){
+        if(!isWeekend&&!isPast&&inWindow){
+          const dk=dateKey(currentYear,currentMonth,d);
+          if(hasPendingOnDate(currentYear,currentMonth,d)){
+            el.classList.add("pending-day");
+          } else if(hasConfirmedOnDate(currentYear,currentMonth,d)){
+            el.classList.add("booked-day");
+          }
           el.addEventListener("click",()=>openDay(currentYear,currentMonth,d));
         }
         grid.appendChild(el);
       }
     }
 
-    function openDay(y,m,d) {
-      selectedDate = dateKey(y,m,d);
+    function openDay(y,m,d){
+      selectedDate=dateKey(y,m,d);
       document.getElementById("calendarView").style.display="none";
       document.getElementById("dayView").style.display="block";
-      document.getElementById("dayTitle").textContent = fmtDateLong(new Date(y,m,d));
-      slotStart=null;
-      slotEnd=null;
-      renderDayView();
-      renderCalendar();
+      document.getElementById("dayTitle").textContent=fmtDateLong(new Date(y,m,d));
+      slotStart=null;slotEnd=null;
+      renderDayView();renderCalendar();
     }
 
-    function renderDayView() {
-      const dk = selectedDate;
-      const bookings = bookingsForDate(dk);
-      const container = document.getElementById("bookingsContainer");
+    function renderDayView(){
+      const dk=selectedDate;
+      const bookings=bookingsForDate(dk);
+      const container=document.getElementById("bookingsContainer");
 
       if(bookings.length===0){
         container.innerHTML='<p class="no-bookings">No bookings yet for this day.</p>';
@@ -362,52 +348,71 @@
         container.innerHTML="";
         bookings.forEach((b,idx)=>{
           const row=document.createElement("div");
-          row.className="booking-row";
-          const canCancel = isAdmin || b.name.toLowerCase()===(document.getElementById("bookName").value||"").toLowerCase();
+          row.className="booking-row"+(b.status==="pending"?" pending":"");
+          const statusTag=b.status==="pending"
+            ?'<span class="b-pending-tag">⏳ Pending</span>'
+            :'<span class="b-confirmed-tag">✓ Confirmed</span>';
+          const contactTag=b.contact?'<span class="b-admin-tag" title="Contact">'+escHtml(b.contact)+'</span>':'';
+          const adminTag=b.isAdmin?'<span class="b-admin-tag">Admin</span>':'';
+          const priceTag=b.price!=null?'<span class="b-admin-tag">€'+b.price.toFixed(2)+'</span>':'';
+
+          let actions="";
+          if(isAdmin){
+            if(b.status==="pending"){
+              actions+='<button class="btn-confirm-booking" data-idx="'+idx+'">✓ Confirm</button> ';
+            }
+            actions+='<button class="btn-cancel" data-idx="'+idx+'">Cancel</button>';
+          }
+
           row.innerHTML=
             '<div class="b-info">'+
               '<span class="b-name">'+escHtml(b.name)+'</span>'+
               '<span class="b-time">'+slotTime(b.start)+' — '+slotTime(b.end)+'</span>'+
-              (b.contact?'<span class="b-admin-tag" title="Contact">'+escHtml(b.contact)+'</span>':'')+
-              (b.isAdmin?'<span class="b-admin-tag">Admin</span>':'')+
-            '</div>'+
-            (isAdmin?'<button class="btn-cancel" data-idx="'+idx+'">Cancel</button>':'');
+              statusTag+priceTag+contactTag+adminTag+
+            '</div>'+actions;
           container.appendChild(row);
         });
+
+        container.querySelectorAll(".btn-confirm-booking").forEach(btn=>{
+          btn.addEventListener("click",function(){
+            const i=parseInt(this.dataset.idx);
+            const all=getBookings();
+            const dayBookings=bookingsForDate(dk);
+            const target=dayBookings[i];
+            const globalIdx=all.findIndex(b=>b.date===target.date&&b.start===target.start&&b.name===target.name&&b.status==="pending");
+            if(globalIdx>=0){all[globalIdx].status="confirmed";saveBookings(all);renderDayView();renderCalendar();}
+          });
+        });
+
         container.querySelectorAll(".btn-cancel").forEach(btn=>{
           btn.addEventListener("click",function(){
             const i=parseInt(this.dataset.idx);
             const all=getBookings();
             const dayBookings=bookingsForDate(dk);
             const target=dayBookings[i];
-            const globalIdx=all.findIndex(b=>b.date===target.date&&b.start===target.start&&b.name===target.name);
-            if(globalIdx>=0){
-              all.splice(globalIdx,1);
-              saveBookings(all);
-              renderDayView();
-              renderCalendar();
-            }
+            const globalIdx=all.findIndex(b=>b.date===target.date&&b.start===target.start&&b.name===target.name&&b.status===target.status);
+            if(globalIdx>=0){all.splice(globalIdx,1);saveBookings(all);renderDayView();renderCalendar();}
           });
         });
       }
-
-      renderSlots(dk, bookings);
+      renderSlots(dk,bookings);
     }
 
-    function renderSlots(dk, bookings) {
-      const grid = document.getElementById("slotGrid");
+    function renderSlots(dk,bookings){
+      const grid=document.getElementById("slotGrid");
       grid.innerHTML="";
       const n=totalSlots();
-      const effectiveOpen = isAdmin ? OPEN_HOUR : GUEST_OPEN_HOUR;
-      const startIdx = ((effectiveOpen - OPEN_HOUR)*60)/SLOT_MIN;
+      const effectiveOpen=isAdmin?OPEN_HOUR:GUEST_OPEN_HOUR;
+      const startIdx=((effectiveOpen-OPEN_HOUR)*60)/SLOT_MIN;
       for(let i=0;i<n;i++){
         const el=document.createElement("div");
         el.className="slot";
         el.textContent=slotTime(i);
-        const booked=isSlotBooked(dk,i);
-        const beforeGuestOpen = !isAdmin && i < startIdx;
-        if(booked){
-          el.classList.add("booked");
+        const si=confirmedBookingsForDate(dk).find(b=>i>=b.start&&i<b.end);
+        const beforeGuestOpen=!isAdmin&&i<startIdx;
+        if(si){
+          el.classList.add(si.status==="pending"?"pending-slot":"booked");
+          el.title=si.status==="pending"?"Pending: "+escHtml(si.name):"Booked: "+escHtml(si.name);
         } else if(beforeGuestOpen){
           el.classList.add("disabled");
           el.title="Admin only before 09:00";
@@ -423,80 +428,70 @@
       }
     }
 
-    function selectSlot(i) {
+    function selectSlot(i){
       if(!isAdmin){
         const guestStartIdx=((GUEST_OPEN_HOUR-OPEN_HOUR)*60)/SLOT_MIN;
         if(i<guestStartIdx) return;
       }
-      if(slotStart===null){
-        slotStart=i;
-        slotEnd=null;
-      } else if(slotEnd===null){
+      if(slotStart===null){slotStart=i;slotEnd=null;}
+      else if(slotEnd===null){
         if(i===slotStart){slotStart=null;renderDayView();return;}
         const s=Math.min(slotStart,i);
         const e=Math.max(slotStart,i);
         const dk=selectedDate;
         let blocked=false;
-        for(let j=s;j<e;j++){
-          if(isSlotBooked(dk,j)){blocked=true;break;}
-        }
-        if(blocked){
-          slotStart=null;
-          slotEnd=null;
-          renderDayView();
-          return;
-        }
-        slotStart=s;
-        slotEnd=e;
-      } else {
-        slotStart=i;
-        slotEnd=null;
-      }
+        for(let j=s;j<e;j++){if(isSlotBooked(dk,j)){blocked=true;break;}}
+        if(blocked){slotStart=null;slotEnd=null;renderDayView();return;}
+        slotStart=s;slotEnd=e;
+      } else {slotStart=i;slotEnd=null;}
       renderDayView();
       updateForm();
     }
 
-    function updateForm() {
+    function updateForm(){
       const form=document.getElementById("bookingForm");
       const info=document.getElementById("formInfo");
+      const priceEl=document.getElementById("formPrice");
       const confirmBtn=document.getElementById("confirmBtn");
 
-      if(slotStart===null){
-        form.style.display="none";
-        return;
-      }
+      if(slotStart===null){form.style.display="none";return;}
       form.style.display="block";
 
       if(slotEnd===null){
         info.innerHTML="Selected: <strong>"+slotTime(slotStart)+"</strong> — click another slot to set end time";
         confirmBtn.disabled=true;
+        priceEl.style.display="none";
         return;
       }
 
       const dur=slotEnd-slotStart;
-      const durHours=(dur*SLOT_MIN)/60;
       const durMin=dur*SLOT_MIN;
       let infoText="From <strong>"+slotTime(slotStart)+"</strong> to <strong>"+slotTime(slotEnd)+"</strong> — <strong>"+durMin+" min</strong>";
       let error="";
 
       if(!isAdmin&&dur>MAX_GUEST_SLOTS){
-        error="⚠ Guests can book max 2 hours. Admin login required for longer bookings.";
+        error="⚠ Guests can book max 2 hours. Admin login required for longer.";
         confirmBtn.disabled=true;
+        priceEl.style.display="none";
       } else {
         confirmBtn.disabled=false;
+        const price=calcPrice(dur);
+        priceEl.textContent="Total: €"+price.toFixed(2)+" ("+(durMin/60)+"h × €"+HOURLY_RATE+"/h)";
+        priceEl.style.display="block";
       }
-
       info.innerHTML=infoText+(error?'<br><span class="form-info error-msg">'+error+'</span>':'');
     }
 
-    function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-
-    function confirmBooking() {
+    function confirmBooking(){
       const name=document.getElementById("bookName").value.trim();
       const contact=document.getElementById("bookContact").value.trim();
       if(!name){document.getElementById("bookName").focus();return;}
       if(!contact){document.getElementById("bookContact").focus();return;}
       if(slotStart===null||slotEnd===null)return;
+
+      const dur=Math.max(slotStart,slotEnd)-Math.min(slotStart,slotEnd);
+      const price=isAdmin?null:calcPrice(dur);
+      const status=isAdmin?"confirmed":"pending";
 
       const all=getBookings();
       all.push({
@@ -505,79 +500,81 @@
         contact:contact,
         start:Math.min(slotStart,slotEnd),
         end:Math.max(slotStart,slotEnd),
-        isAdmin:isAdmin
+        isAdmin:isAdmin,
+        status:status,
+        price:price,
+        createdAt:new Date().toISOString()
       });
       saveBookings(all);
-      slotStart=null;
-      slotEnd=null;
+
+      if(!isAdmin){
+        const durMin=dur*SLOT_MIN;
+        const subject=encodeURIComponent("Meeting Room Booking Request — "+selectedDate+" "+slotTime(Math.min(slotStart,slotEnd))+"-"+slotTime(Math.max(slotStart,slotEnd)));
+        const body=encodeURIComponent(
+          "BOOKING REQUEST\n\n"+
+          "Name: "+name+"\n"+
+          "Contact: "+contact+"\n"+
+          "Date: "+selectedDate+"\n"+
+          "Time: "+slotTime(Math.min(slotStart,slotEnd))+" — "+slotTime(Math.max(slotStart,slotEnd))+"\n"+
+          "Duration: "+durMin+" min\n"+
+          "Total: €"+price.toFixed(2)+"\n\n"+
+          "Status: PENDING — awaiting payment confirmation\n\n"+
+          "To confirm: send payment link to "+contact+" and confirm booking in the dashboard."
+        );
+        window.open("mailto:"+ADMIN_EMAIL+"?subject="+subject+"&body="+body,"_blank");
+      }
+
+      slotStart=null;slotEnd=null;
       document.getElementById("bookName").value="";
       document.getElementById("bookContact").value="";
       renderDayView();
     }
 
-    function generateQR() {
-      const url = window.location.href.split("?")[0];
-      const container = document.getElementById("qrImage");
-      container.innerHTML = "";
-      if(typeof QRCode !== "undefined") {
-        new QRCode(container, { text: url, width: 250, height: 250, correctLevel: QRCode.CorrectLevel.M });
+    function generateQR(){
+      const url=window.location.href.split("?")[0];
+      const container=document.getElementById("qrImage");
+      container.innerHTML="";
+      if(typeof QRCode!=="undefined"){
+        new QRCode(container,{text:url,width:250,height:250,correctLevel:QRCode.CorrectLevel.M});
       }
     }
 
-    function isAuthed() {
-      try {
-        const d=JSON.parse(localStorage.getItem(AUTH_KEY));
-        return d&&(Date.now()-d.ts)<AUTH_TTL;
-      } catch{return false;}
-    }
+    function isAuthed(){try{const d=JSON.parse(localStorage.getItem(AUTH_KEY));return d&&(Date.now()-d.ts)<AUTH_TTL;}catch{return false;}}
 
-    function doLogin() {
+    function doLogin(){
       const email=document.getElementById("emailInput");
       const pass=document.getElementById("passInput");
       const err=document.getElementById("loginError");
       if(email.value.trim().toLowerCase()===ADMIN_EMAIL&&pass.value===ADMIN_PASS){
-        isAdmin=true;
-        localStorage.setItem(AUTH_KEY,JSON.stringify({ts:Date.now(),admin:true}));
-        showDashboard();
+        isAdmin=true;localStorage.setItem(AUTH_KEY,JSON.stringify({ts:Date.now(),admin:true}));showDashboard();
       } else {
-        pass.classList.add("error");
-        email.classList.add("error");
+        pass.classList.add("error");email.classList.add("error");
         err.textContent="Invalid credentials. Try again.";
-        email.value="";pass.value="";
-        email.focus();
+        email.value="";pass.value="";email.focus();
         setTimeout(()=>{pass.classList.remove("error");email.classList.remove("error");},400);
       }
     }
 
-    function doGuest() {
-      isAdmin=false;
-      localStorage.removeItem(AUTH_KEY);
-      showDashboard();
-    }
+    function doGuest(){isAdmin=false;localStorage.removeItem(AUTH_KEY);showDashboard();}
 
-    function showDashboard() {
+    function showDashboard(){
       document.getElementById("loginGate").style.display="none";
       document.getElementById("dashboard").style.display="block";
       document.getElementById("adminBadge").style.display=isAdmin?"inline-block":"none";
       document.getElementById("clearAllBtn").style.display=isAdmin?"inline-block":"none";
       document.getElementById("lockBtn").textContent=isAdmin?"🔒 Logout":"🔒";
-      renderCalendar();
-      generateQR();
+      renderCalendar();generateQR();
     }
 
-    function doLock() {
-      isAdmin=false;
-      localStorage.removeItem(AUTH_KEY);
+    function doLock(){
+      isAdmin=false;localStorage.removeItem(AUTH_KEY);
       document.getElementById("dashboard").style.display="none";
       document.getElementById("loginGate").style.display="flex";
-      document.getElementById("emailInput").value="";
-      document.getElementById("passInput").value="";
+      document.getElementById("emailInput").value="";document.getElementById("passInput").value="";
       document.getElementById("loginError").textContent="";
       document.getElementById("emailInput").focus();
       document.getElementById("clearAllBtn").style.display="none";
-      selectedDate=null;
-      slotStart=null;
-      slotEnd=null;
+      selectedDate=null;slotStart=null;slotEnd=null;
     }
 
     document.getElementById("loginBtn").addEventListener("click",doLogin);
@@ -585,77 +582,36 @@
     document.getElementById("emailInput").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("passInput").focus()});
     document.getElementById("guestLink").addEventListener("click",doGuest);
     document.getElementById("lockBtn").addEventListener("click",doLock);
-    document.getElementById("prevMonth").addEventListener("click",()=>{
-      currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();
-    });
-    document.getElementById("nextMonth").addEventListener("click",()=>{
-      currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();
-    });
-    document.getElementById("backBtn").addEventListener("click",()=>{
-      document.getElementById("dayView").style.display="none";
-      document.getElementById("calendarView").style.display="block";
-      selectedDate=null;
-      slotStart=null;
-      slotEnd=null;
-      renderCalendar();
-    });
+    document.getElementById("prevMonth").addEventListener("click",()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();});
+    document.getElementById("nextMonth").addEventListener("click",()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();});
+    document.getElementById("backBtn").addEventListener("click",()=>{document.getElementById("dayView").style.display="none";document.getElementById("calendarView").style.display="block";selectedDate=null;slotStart=null;slotEnd=null;renderCalendar();});
     document.getElementById("confirmBtn").addEventListener("click",confirmBooking);
-    document.getElementById("clearBtn").addEventListener("click",()=>{
-      slotStart=null;slotEnd=null;renderDayView();
-    });
+    document.getElementById("clearBtn").addEventListener("click",()=>{slotStart=null;slotEnd=null;renderDayView();});
 
-    // ── GDPR: Consent Banner ──
-    const CONSENT_KEY = "ac_meet_consent";
-    function hasConsent() { return localStorage.getItem(CONSENT_KEY) === "yes"; }
-    function showConsent() {
-      if (!hasConsent()) document.getElementById("consentBanner").classList.add("show");
-    }
-    document.getElementById("consentAccept").addEventListener("click", () => {
-      localStorage.setItem(CONSENT_KEY, "yes");
-      document.getElementById("consentBanner").classList.remove("show");
-    });
+    const CONSENT_KEY="ac_meet_consent";
+    function hasConsent(){return localStorage.getItem(CONSENT_KEY)==="yes"}
+    function showConsent(){if(!hasConsent())document.getElementById("consentBanner").classList.add("show")}
+    document.getElementById("consentAccept").addEventListener("click",()=>{localStorage.setItem(CONSENT_KEY,"yes");document.getElementById("consentBanner").classList.remove("show")});
 
-    // ── GDPR: Clear All Data ──
-    document.getElementById("clearAllBtn").addEventListener("click", () => {
-      if (confirm("This will delete ALL your bookings and login data from this browser. Continue?")) {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(AUTH_KEY);
-        localStorage.removeItem(CONSENT_KEY);
-        isAdmin = false;
-        slotStart = null;
-        slotEnd = null;
-        document.getElementById("dashboard").style.display = "none";
-        document.getElementById("loginGate").style.display = "flex";
-        document.getElementById("emailInput").value = "";
-        document.getElementById("passInput").value = "";
-        document.getElementById("loginError").textContent = "";
-        showConsent();
+    document.getElementById("clearAllBtn").addEventListener("click",()=>{
+      if(confirm("This will delete ALL bookings and login data from this browser. Continue?")){
+        localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(AUTH_KEY);localStorage.removeItem(CONSENT_KEY);
+        isAdmin=false;slotStart=null;slotEnd=null;
+        document.getElementById("dashboard").style.display="none";document.getElementById("loginGate").style.display="flex";
+        document.getElementById("emailInput").value="";document.getElementById("passInput").value="";
+        document.getElementById("loginError").textContent="";showConsent();
       }
     });
 
-    // ── GDPR: Auto Data Retention (90 days) ──
-    function enforceRetention() {
-      const all = getBookings();
-      const now = Date.now();
-      const MS_90_DAYS = 90 * 24 * 60 * 60 * 1000;
-      const filtered = all.filter(b => {
-        const bookingDate = new Date(b.date + "T23:59:59");
-        return (now - bookingDate.getTime()) < MS_90_DAYS;
-      });
-      if (filtered.length !== all.length) {
-        saveBookings(filtered);
-      }
+    function enforceRetention(){
+      const all=getBookings();const now=Date.now();const MS90=90*24*60*60*1000;
+      const filtered=all.filter(b=>(now-new Date(b.date+"T23:59:59").getTime())<MS90);
+      if(filtered.length!==all.length) saveBookings(filtered);
     }
     enforceRetention();
 
-    // ── Init ──
-    if(isAuthed()){
-      const d=JSON.parse(localStorage.getItem(AUTH_KEY));
-      isAdmin=!!d.admin;
-      showDashboard();
-    } else {
-      showConsent();
-    }
+    if(isAuthed()){const d=JSON.parse(localStorage.getItem(AUTH_KEY));isAdmin=!!d.admin;showDashboard();}
+    else {showConsent();}
   </script>
 </body>
 </html>
