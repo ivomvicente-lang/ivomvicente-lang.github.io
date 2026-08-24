@@ -513,7 +513,9 @@
       if(isAdmin){
         memberBadge.className="member-badge";memberBadge.textContent="";
         confirmBtn.disabled=false;
-        priceEl.style.display="none";
+        const price=calcPrice(dur);
+        priceEl.textContent="Total: €"+price.toFixed(2)+" ("+(durMin/60)+"h × €"+HOURLY_RATE+"/h)";
+        priceEl.style.display="block";
         infoText+=' <span style="color:var(--blue);font-size:.72rem">Admin — no restrictions</span>';
       } else if(isMember){
         memberBadge.className="member-badge is-member";memberBadge.textContent="Member";
