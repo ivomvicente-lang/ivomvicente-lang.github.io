@@ -305,6 +305,7 @@
     function getBookings(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[]}catch{return[]}}
     function saveBookings(b){localStorage.setItem(STORAGE_KEY,JSON.stringify(b))}
     function slotTime(i){const t=OPEN_HOUR*60+i*SLOT_MIN;const h=Math.floor(t/60);const m=t%60;return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")}
+    function fmtDuration(mins){const h=mins/60;return h===Math.floor(h)?h+"h":h.toFixed(1).replace(".0","")+"h"}
     function totalSlots(){return((CLOSE_HOUR-OPEN_HOUR)*60)/SLOT_MIN}
     function dateKey(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0")}
     function fmtDateLong(d){return d.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
@@ -536,7 +537,7 @@
 
       const dur=slotEnd-slotStart;
       const durMin=dur*SLOT_MIN;
-      let infoText="From <strong>"+slotTime(slotStart)+"</strong> to <strong>"+slotTime(slotEnd)+"</strong> — <strong>"+durMin+" min</strong>";
+      let infoText="From <strong>"+slotTime(slotStart)+"</strong> to <strong>"+slotTime(slotEnd)+"</strong> — <strong>"+fmtDuration(durMin)+"</strong>";
       let error="";
 
       const isMember=memberStatus===true;
@@ -546,7 +547,7 @@
         memberBadge.className="member-badge";memberBadge.textContent="";
         confirmBtn.disabled=false;
         const price=calcPrice(dur);
-        priceEl.textContent="Total: €"+price.toFixed(2)+" ("+(durMin/60)+"h × €"+HOURLY_RATE+"/h)";
+        priceEl.textContent="Total: €"+price.toFixed(2)+" ("+fmtDuration(durMin)+" × €"+HOURLY_RATE+"/h)";
         priceEl.style.display="block";
         infoText+=' <span style="color:var(--blue);font-size:.72rem">Admin — no restrictions</span>';
       } else if(isMember){
@@ -564,7 +565,7 @@
         memberBadge.className="member-badge not-member";memberBadge.textContent="Non-member";
         confirmBtn.disabled=false;
         const price=calcPrice(dur);
-        priceEl.textContent="Total: €"+price.toFixed(2)+" ("+(durMin/60)+"h × €"+HOURLY_RATE+"/h)";
+        priceEl.textContent="Total: €"+price.toFixed(2)+" ("+fmtDuration(durMin)+" × €"+HOURLY_RATE+"/h)";
         priceEl.style.display="block";
       }
       info.innerHTML=infoText+(error?'<br><span class="form-info error-msg">'+error+'</span>':'');
@@ -612,7 +613,7 @@
         '<div class="modal-detail"><span class="label">Contact</span><span class="value">'+escHtml(contact||"Not provided")+'</span></div>'+
         '<div class="modal-detail"><span class="label">Date</span><span class="value">'+selectedDate+'</span></div>'+
         '<div class="modal-detail"><span class="label">Time</span><span class="value">'+slotTime(Math.min(slotStart,slotEnd))+' — '+slotTime(Math.max(slotStart,slotEnd))+'</span></div>'+
-        '<div class="modal-detail"><span class="label">Duration</span><span class="value">'+durMin+" min</span></div>"+
+        '<div class="modal-detail"><span class="label">Duration</span><span class="value">'+fmtDuration(durMin)+"</span></div>"+
         '<div class="modal-detail"><span class="label">Total</span>'+priceText+'</div>'+
         '<div class="modal-detail"><span class="label">Status</span>'+statusTag+'</div>';
 
@@ -646,7 +647,7 @@
             contact:b.contact,
             date:b.date,
             time:slotTime(b.start)+" — "+slotTime(b.end),
-            duration:b.durMin+" min",
+            duration:fmtDuration(b.durMin),
             price:b.price!=null?"€"+b.price.toFixed(2):"Free (member)",
             member:b.isMember?"Yes":"No",
             test:b.simulateClient
@@ -671,7 +672,7 @@
           "Member: "+(b.isMember?"Yes":"No")+"\n"+
           "Date: "+b.date+"\n"+
           "Time: "+slotTime(b.start)+" — "+slotTime(b.end)+"\n"+
-          "Duration: "+b.durMin+" min\n"+
+          "Duration: "+fmtDuration(b.durMin)+"\n"+
           "Total: "+priceText+"\n\n"+
           "Status: PENDING — awaiting confirmation\n\n"+
           (b.isMember?"Member — no payment needed.":b.simulateClient?"[TEST] Simulated client — send payment link to "+b.contact+" and confirm in dashboard.":"Send payment link to "+b.contact+" and confirm booking in the dashboard.")
