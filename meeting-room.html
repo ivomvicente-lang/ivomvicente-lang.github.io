@@ -186,8 +186,8 @@
               <label>Your Name</label>
               <input type="text" id="bookName" placeholder="e.g. Maria Silva">
             </div>
-            <div class="form-group">
-              <label>WhatsApp or Email <span class="info-icon" data-tip="We need a way to contact you if the meeting room needs to be freed for an emergency or schedule change. Your contact info is stored only in your browser and never shared.">i</span></label>
+            <div class="form-group" id="contactGroup">
+              <label id="contactLabel">WhatsApp or Email <span class="info-icon" data-tip="We need a way to contact you if the meeting room needs to be freed for an emergency or schedule change. Your contact info is stored only in your browser and never shared.">i</span></label>
               <input type="text" id="bookContact" placeholder="+351 912 345 678 or email">
             </div>
           </div>
@@ -486,7 +486,7 @@
       const name=document.getElementById("bookName").value.trim();
       const contact=document.getElementById("bookContact").value.trim();
       if(!name){document.getElementById("bookName").focus();return;}
-      if(!contact){document.getElementById("bookContact").focus();return;}
+      if(!isAdmin&&!contact){document.getElementById("bookContact").focus();return;}
       if(slotStart===null||slotEnd===null)return;
 
       const dur=Math.max(slotStart,slotEnd)-Math.min(slotStart,slotEnd);
@@ -563,6 +563,10 @@
       document.getElementById("adminBadge").style.display=isAdmin?"inline-block":"none";
       document.getElementById("clearAllBtn").style.display=isAdmin?"inline-block":"none";
       document.getElementById("lockBtn").textContent=isAdmin?"🔒 Logout":"🔒";
+      const contactLabel=document.getElementById("contactLabel");
+      const contactInput=document.getElementById("bookContact");
+      if(isAdmin){contactLabel.innerHTML='Contact <span style="color:var(--muted);font-size:.6rem">(optional)</span>';contactInput.placeholder="Optional for admin";}
+      else{contactLabel.innerHTML='WhatsApp or Email <span class="info-icon" data-tip="We need a way to contact you if the meeting room needs to be freed for an emergency or schedule change. Your contact info is stored only in your browser and never shared.">i</span>';contactInput.placeholder="+351 912 345 678 or email";}
       renderCalendar();generateQR();
     }
 
@@ -574,6 +578,10 @@
       document.getElementById("loginError").textContent="";
       document.getElementById("emailInput").focus();
       document.getElementById("clearAllBtn").style.display="none";
+      const contactLabel=document.getElementById("contactLabel");
+      const contactInput=document.getElementById("bookContact");
+      contactLabel.innerHTML='WhatsApp or Email <span class="info-icon" data-tip="We need a way to contact you if the meeting room needs to be freed for an emergency or schedule change. Your contact info is stored only in your browser and never shared.">i</span>';
+      contactInput.placeholder="+351 912 345 678 or email";
       selectedDate=null;slotStart=null;slotEnd=null;
     }
 
