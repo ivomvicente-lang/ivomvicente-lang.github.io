@@ -32,6 +32,16 @@
     .skip-link{display:inline-block;margin-top:1rem;color:var(--muted);font-size:.82rem;text-decoration:underline;cursor:pointer;font-style:italic}
     .skip-link:hover{color:var(--ink)}
     .dashboard{display:none}
+    body.admin-mode{background:linear-gradient(135deg,#e8edf5 0%,#f0f2f8 50%,#e8edf5 100%);background-image:radial-gradient(circle at 20% 50%,rgba(58,124,165,.04) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(58,124,165,.03) 0%,transparent 50%)}
+    body.admin-mode header{border-bottom-color:#3a7ca5}
+    body.admin-mode .calendar-nav h3{color:#2a5f85}
+    body.admin-mode .day-header h2{color:#2a5f85}
+    body.admin-mode h1{color:#2a5f85}
+    body.admin-mode .stamp{border-color:#3a7ca5;color:#3a7ca5}
+    body.admin-mode .stamp::after{border-color:#3a7ca5}
+    body.admin-mode footer{border-top-color:#3a7ca5}
+    .guest-banner{display:none;text-align:center;padding:.6rem;margin-bottom:1rem;font-family:"JetBrains Mono",monospace;font-size:.72rem;color:var(--muted);background:rgba(212,147,13,.06);border:1px dashed rgba(212,147,13,.3);border-radius:6px}
+    body:not(.admin-mode) .guest-banner{display:block}
     header{text-align:center;padding-bottom:1.5rem;border-bottom:2px solid var(--line);margin-bottom:1.5rem}
     header .stamp{margin-bottom:.75rem}
     h1{font-family:"Playfair Display",serif;font-weight:900;font-size:2rem;color:var(--dark-brown);letter-spacing:-.02em;margin-bottom:.2rem}
@@ -155,6 +165,8 @@
           <button class="btn-lock" id="lockBtn">🔒 Lock</button>
         </div>
       </div>
+
+      <div class="guest-banner">👁 Guest View — bookings go to pending. <a href="#" id="loginFromGuest" style="color:var(--terracotta);text-decoration:underline">Admin Login →</a></div>
 
       <div id="calendarView">
         <div class="calendar-nav">
@@ -563,6 +575,7 @@
       document.getElementById("adminBadge").style.display=isAdmin?"inline-block":"none";
       document.getElementById("clearAllBtn").style.display=isAdmin?"inline-block":"none";
       document.getElementById("lockBtn").textContent=isAdmin?"🔒 Logout":"🔒";
+      document.body.classList.toggle("admin-mode",isAdmin);
       const contactLabel=document.getElementById("contactLabel");
       const contactInput=document.getElementById("bookContact");
       if(isAdmin){contactLabel.innerHTML='Contact <span style="color:var(--muted);font-size:.6rem">(optional)</span>';contactInput.placeholder="Optional for admin";}
@@ -572,6 +585,7 @@
 
     function doLock(){
       isAdmin=false;localStorage.removeItem(AUTH_KEY);
+      document.body.classList.remove("admin-mode");
       document.getElementById("dashboard").style.display="none";
       document.getElementById("loginGate").style.display="flex";
       document.getElementById("emailInput").value="";document.getElementById("passInput").value="";
@@ -589,6 +603,7 @@
     document.getElementById("passInput").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin()});
     document.getElementById("emailInput").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("passInput").focus()});
     document.getElementById("guestLink").addEventListener("click",doGuest);
+    document.getElementById("loginFromGuest").addEventListener("click",e=>{e.preventDefault();doLock();});
     document.getElementById("lockBtn").addEventListener("click",doLock);
     document.getElementById("prevMonth").addEventListener("click",()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();});
     document.getElementById("nextMonth").addEventListener("click",()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();});
