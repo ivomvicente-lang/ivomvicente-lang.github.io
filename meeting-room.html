@@ -105,7 +105,7 @@
     .qr-section{margin-top:2rem;padding:1.5rem;background:var(--paper);border:1px solid var(--line);border-radius:8px;text-align:center;page-break-inside:avoid}
     .qr-section h3{font-family:"Playfair Display",serif;font-size:1.1rem;color:var(--dark-brown);margin-bottom:.5rem}
     .qr-section p{font-size:.85rem;color:var(--muted);margin-bottom:1rem;font-style:italic}
-    .qr-section img{margin:0 auto;display:block;border:1px solid var(--line);border-radius:6px}
+    .qr-section canvas,.qr-section img{margin:0 auto;display:block;border:1px solid var(--line);border-radius:6px}
     .btn-print{margin-top:1rem;padding:.5rem 1.2rem;font-family:"JetBrains Mono",monospace;font-size:.75rem;background:var(--ink);color:var(--cream);border:none;border-radius:4px;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
 
     footer{text-align:center;margin-top:2.5rem;padding-top:1.25rem;border-top:2px solid var(--line);font-family:"Lora",serif;font-style:italic;color:var(--muted);font-size:.85rem}
@@ -199,7 +199,7 @@
       <div class="qr-section no-print" id="qrSection">
         <h3>Scan to Book</h3>
         <p>Show this QR code at the meeting room door</p>
-        <img id="qrImage" alt="QR Code">
+        <div id="qrImage" style="display:inline-block"></div>
         <button class="btn-print" onclick="window.print()">🖨 Print QR Code</button>
       </div>
 
@@ -207,6 +207,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script>
     const ADMIN_EMAIL = "hello@albufeiracoworking.com";
     const ADMIN_PASS = "Technigo2020!";
@@ -471,8 +472,11 @@
 
     function generateQR() {
       const url = window.location.href.split("?")[0];
-      const qrUrl = "https://chart.googleapis.com/chart?cht=qr&chs=250x250&chl="+encodeURIComponent(url)+"&choe=UTF-8";
-      document.getElementById("qrImage").src = qrUrl;
+      const container = document.getElementById("qrImage");
+      container.innerHTML = "";
+      if(typeof QRCode !== "undefined") {
+        new QRCode(container, { text: url, width: 250, height: 250, correctLevel: QRCode.CorrectLevel.M });
+      }
     }
 
     function isAuthed() {
