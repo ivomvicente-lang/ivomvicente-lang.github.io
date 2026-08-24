@@ -113,6 +113,17 @@
     .form-info{font-family:"JetBrains Mono",monospace;font-size:.72rem;color:var(--muted);margin-bottom:.75rem}
     .form-info strong{color:var(--ink)}
     .form-info.error-msg{color:var(--red);font-weight:700}
+    .member-question{display:none;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:1.25rem;margin-bottom:1rem;text-align:center}
+    .member-question h4{font-family:"Playfair Display",serif;font-size:1.1rem;color:var(--dark-brown);margin-bottom:.5rem}
+    .member-question p{font-family:"Lora",serif;font-style:italic;color:var(--muted);font-size:.85rem;margin-bottom:1rem}
+    .member-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+    .member-btn{padding:.7rem 1.8rem;font-family:"Playfair Display",serif;font-weight:700;font-size:.95rem;border:2px solid var(--line);border-radius:6px;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.5);color:var(--ink)}
+    .member-btn:hover{border-color:var(--terracotta);color:var(--terracotta);transform:translateY(-1px)}
+    .member-btn.active{border-color:var(--green);background:rgba(90,124,62,.1);color:var(--green)}
+    .member-btn.active:hover{border-color:var(--green)}
+    .member-badge{display:none;font-family:"JetBrains Mono",monospace;font-size:.65rem;padding:.2rem .6rem;border-radius:3px;margin-left:.5rem}
+    .member-badge.is-member{display:inline-block;color:var(--green);background:rgba(90,124,62,.1);border:1px solid var(--green)}
+    .member-badge.not-member{display:inline-block;color:var(--amber);background:rgba(212,147,13,.1);border:1px solid var(--amber)}
     .form-price{font-family:"JetBrains Mono",monospace;font-size:1.1rem;font-weight:700;color:var(--green);margin:.5rem 0}
     .btn-confirm{padding:.65rem 1.5rem;font-family:"Playfair Display",serif;font-weight:700;font-size:.9rem;background:var(--green);color:#fff;border:none;border-radius:4px;cursor:pointer;box-shadow:0 2px 8px rgba(90,124,62,.25);transition:transform .12s,box-shadow .2s}
     .btn-confirm:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(90,124,62,.35)}
@@ -189,8 +200,16 @@
         </div>
         <h4 style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Select Time Slots (15 min intervals)</h4>
         <div class="slot-grid" id="slotGrid"></div>
+        <div class="member-question" id="memberQuestion">
+          <h4>Already a member of Albufeira Coworking?</h4>
+          <p>Members get 2 hours free. Non-members pay €15/hour.</p>
+          <div class="member-btns">
+            <button class="member-btn" id="memberYes" data-member="yes">✓ Yes, I'm a member</button>
+            <button class="member-btn" id="memberNo" data-member="no">✗ No, I'm not</button>
+          </div>
+        </div>
         <div class="booking-form" id="bookingForm">
-          <h4>Request Booking</h4>
+          <h4>Request Booking <span class="member-badge" id="memberBadge"></span></h4>
           <div class="form-info" id="formInfo"></div>
           <div class="form-price" id="formPrice" style="display:none"></div>
           <div class="form-row">
@@ -244,6 +263,7 @@
     const MAX_ADVANCE_DAYS=5;
 
     let isAdmin=false;
+    let memberStatus=null; // null=not chosen, true=member, false=non-member
     let currentMonth=new Date().getMonth();
     let currentYear=new Date().getFullYear();
     let selectedDate=null;
@@ -366,7 +386,8 @@
             :'<span class="b-confirmed-tag">✓ Confirmed</span>';
           const contactTag=b.contact?'<span class="b-admin-tag" title="Contact">'+escHtml(b.contact)+'</span>':'';
           const adminTag=b.isAdmin?'<span class="b-admin-tag">Admin</span>':'';
-          const priceTag=b.price!=null?'<span class="b-admin-tag">€'+b.price.toFixed(2)+'</span>':'';
+          const memberTag=b.isMember!=null?(b.isMember?'<span class="b-admin-tag" style="color:var(--green);border-color:var(--green)">Member</span>':'<span class="b-admin-tag" style="color:var(--amber);border-color:var(--amber)">Non-member</span>'):'';
+          const priceTag=b.price!=null?'<span class="b-admin-tag">€'+b.price.toFixed(2)+'</span>':(b.isMember?'<span class="b-admin-tag" style="color:var(--green)">Free</span>':'');
 
           let actions="";
           if(isAdmin){
@@ -380,7 +401,7 @@
             '<div class="b-info">'+
               '<span class="b-name">'+escHtml(b.name)+'</span>'+
               '<span class="b-time">'+slotTime(b.start)+' — '+slotTime(b.end)+'</span>'+
-              statusTag+priceTag+contactTag+adminTag+
+              statusTag+priceTag+memberTag+contactTag+adminTag+
             '</div>'+actions;
           container.appendChild(row);
         });
@@ -457,7 +478,12 @@
         slotStart=s;slotEnd=e;
       } else {slotStart=i;slotEnd=null;}
       renderDayView();
-      updateForm();
+      if(!isAdmin&&slotStart!==null&&slotEnd!==null&&memberStatus===null){
+        document.getElementById("memberQuestion").style.display="block";
+        document.getElementById("bookingForm").style.display="none";
+      } else {
+        updateForm();
+      }
     }
 
     function updateForm(){
@@ -481,11 +507,27 @@
       let infoText="From <strong>"+slotTime(slotStart)+"</strong> to <strong>"+slotTime(slotEnd)+"</strong> — <strong>"+durMin+" min</strong>";
       let error="";
 
-      if(!isAdmin&&dur>MAX_GUEST_SLOTS){
-        error="⚠ Guests can book max 2 hours. Admin login required for longer.";
-        confirmBtn.disabled=true;
+      const isMember=memberStatus===true;
+      const memberBadge=document.getElementById("memberBadge");
+
+      if(isAdmin){
+        memberBadge.className="member-badge";memberBadge.textContent="";
+        confirmBtn.disabled=false;
         priceEl.style.display="none";
+        infoText+=' <span style="color:var(--blue);font-size:.72rem">Admin — no restrictions</span>';
+      } else if(isMember){
+        memberBadge.className="member-badge is-member";memberBadge.textContent="Member";
+        if(dur>MAX_GUEST_SLOTS){
+          error="⚠ Members get max 2 hours free. Admin login required for longer.";
+          confirmBtn.disabled=true;
+          priceEl.style.display="none";
+        } else {
+          confirmBtn.disabled=false;
+          priceEl.textContent="Free for members ✓";
+          priceEl.style.display="block";
+        }
       } else {
+        memberBadge.className="member-badge not-member";memberBadge.textContent="Non-member";
         confirmBtn.disabled=false;
         const price=calcPrice(dur);
         priceEl.textContent="Total: €"+price.toFixed(2)+" ("+(durMin/60)+"h × €"+HOURLY_RATE+"/h)";
@@ -502,17 +544,21 @@
       if(slotStart===null||slotEnd===null)return;
 
       const dur=Math.max(slotStart,slotEnd)-Math.min(slotStart,slotEnd);
-      const price=isAdmin?null:calcPrice(dur);
+      const durMin=dur*SLOT_MIN;
+      const isMember=memberStatus===true;
+      let price=null;
+      if(!isAdmin&&!isMember) price=calcPrice(dur);
       const status=isAdmin?"confirmed":"pending";
 
       const all=getBookings();
       all.push({
         date:selectedDate,
         name:name,
-        contact:contact,
+        contact:contact||"",
         start:Math.min(slotStart,slotEnd),
         end:Math.max(slotStart,slotEnd),
         isAdmin:isAdmin,
+        isMember:isMember,
         status:status,
         price:price,
         createdAt:new Date().toISOString()
@@ -520,25 +566,27 @@
       saveBookings(all);
 
       if(!isAdmin){
-        const durMin=dur*SLOT_MIN;
+        const priceText=isMember?"Free (member)":"€"+price.toFixed(2);
         const subject=encodeURIComponent("Meeting Room Booking Request — "+selectedDate+" "+slotTime(Math.min(slotStart,slotEnd))+"-"+slotTime(Math.max(slotStart,slotEnd)));
         const body=encodeURIComponent(
           "BOOKING REQUEST\n\n"+
           "Name: "+name+"\n"+
-          "Contact: "+contact+"\n"+
+          "Contact: "+(contact||"Not provided")+"\n"+
+          "Member: "+(isMember?"Yes":"No")+"\n"+
           "Date: "+selectedDate+"\n"+
           "Time: "+slotTime(Math.min(slotStart,slotEnd))+" — "+slotTime(Math.max(slotStart,slotEnd))+"\n"+
           "Duration: "+durMin+" min\n"+
-          "Total: €"+price.toFixed(2)+"\n\n"+
-          "Status: PENDING — awaiting payment confirmation\n\n"+
-          "To confirm: send payment link to "+contact+" and confirm booking in the dashboard."
+          "Total: "+priceText+"\n\n"+
+          "Status: PENDING — awaiting confirmation\n\n"+
+          (isMember?"Member — no payment needed.":"Send payment link to "+contact+" and confirm booking in the dashboard.")
         );
         window.open("mailto:"+ADMIN_EMAIL+"?subject="+subject+"&body="+body,"_blank");
       }
 
-      slotStart=null;slotEnd=null;
+      slotStart=null;slotEnd=null;memberStatus=null;
       document.getElementById("bookName").value="";
       document.getElementById("bookContact").value="";
+      document.getElementById("memberQuestion").style.display="none";
       renderDayView();
     }
 
@@ -584,7 +632,7 @@
     }
 
     function doLock(){
-      isAdmin=false;localStorage.removeItem(AUTH_KEY);
+      isAdmin=false;memberStatus=null;localStorage.removeItem(AUTH_KEY);
       document.body.classList.remove("admin-mode");
       document.getElementById("dashboard").style.display="none";
       document.getElementById("loginGate").style.display="flex";
@@ -592,6 +640,8 @@
       document.getElementById("loginError").textContent="";
       document.getElementById("emailInput").focus();
       document.getElementById("clearAllBtn").style.display="none";
+      document.getElementById("memberQuestion").style.display="none";
+      document.querySelectorAll(".member-btn").forEach(b=>b.classList.remove("active"));
       const contactLabel=document.getElementById("contactLabel");
       const contactInput=document.getElementById("bookContact");
       contactLabel.innerHTML='WhatsApp or Email <span class="info-icon" data-tip="We need a way to contact you if the meeting room needs to be freed for an emergency or schedule change. Your contact info is stored only in your browser and never shared.">i</span>';
@@ -607,9 +657,19 @@
     document.getElementById("lockBtn").addEventListener("click",doLock);
     document.getElementById("prevMonth").addEventListener("click",()=>{currentMonth--;if(currentMonth<0){currentMonth=11;currentYear--;}renderCalendar();});
     document.getElementById("nextMonth").addEventListener("click",()=>{currentMonth++;if(currentMonth>11){currentMonth=0;currentYear++;}renderCalendar();});
-    document.getElementById("backBtn").addEventListener("click",()=>{document.getElementById("dayView").style.display="none";document.getElementById("calendarView").style.display="block";selectedDate=null;slotStart=null;slotEnd=null;renderCalendar();});
+    document.getElementById("backBtn").addEventListener("click",()=>{document.getElementById("dayView").style.display="none";document.getElementById("calendarView").style.display="block";selectedDate=null;slotStart=null;slotEnd=null;memberStatus=null;document.getElementById("memberQuestion").style.display="none";renderCalendar();});
     document.getElementById("confirmBtn").addEventListener("click",confirmBooking);
-    document.getElementById("clearBtn").addEventListener("click",()=>{slotStart=null;slotEnd=null;renderDayView();});
+    document.getElementById("clearBtn").addEventListener("click",()=>{slotStart=null;slotEnd=null;memberStatus=null;document.getElementById("memberQuestion").style.display="none";renderDayView();});
+
+    document.querySelectorAll(".member-btn").forEach(btn=>{
+      btn.addEventListener("click",function(){
+        document.querySelectorAll(".member-btn").forEach(b=>b.classList.remove("active"));
+        this.classList.add("active");
+        memberStatus=this.dataset.member==="yes";
+        document.getElementById("memberQuestion").style.display="none";
+        updateForm();
+      });
+    });
 
     const CONSENT_KEY="ac_meet_consent";
     function hasConsent(){return localStorage.getItem(CONSENT_KEY)==="yes"}
@@ -619,7 +679,7 @@
     document.getElementById("clearAllBtn").addEventListener("click",()=>{
       if(confirm("This will delete ALL bookings and login data from this browser. Continue?")){
         localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(AUTH_KEY);localStorage.removeItem(CONSENT_KEY);
-        isAdmin=false;slotStart=null;slotEnd=null;
+        isAdmin=false;memberStatus=null;slotStart=null;slotEnd=null;
         document.getElementById("dashboard").style.display="none";document.getElementById("loginGate").style.display="flex";
         document.getElementById("emailInput").value="";document.getElementById("passInput").value="";
         document.getElementById("loginError").textContent="";showConsent();
