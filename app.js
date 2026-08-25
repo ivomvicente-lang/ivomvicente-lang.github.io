@@ -72,6 +72,17 @@ document.addEventListener("keydown", (e) => {
     const grandTotal = dailyTotal * days;
     const perHead = headphones > 0 ? (grandTotal / headphones) : 0;
 
+    // Promo rounding: clean up the price
+    let promoPrice;
+    if (grandTotal < 100) {
+      promoPrice = Math.floor(grandTotal / 10) * 10;
+    } else {
+      promoPrice = Math.floor(grandTotal / 100) * 100;
+    }
+    const promoSaving = grandTotal - promoPrice;
+    const promoPercent = grandTotal > 0 ? Math.round((promoSaving / grandTotal) * 100) : 0;
+    const hasPromo = promoSaving > 0;
+
     // Update slider display
     headphoneVal.textContent = headphones;
 
@@ -87,13 +98,28 @@ document.addEventListener("keydown", (e) => {
       '<div class="calc-breakdown-row"><span class="label">' + r.label + '</span><span class="' + (r.discount ? 'discount' : '') + '">' + r.value + '</span></div>'
     ).join("");
 
-    // Total
-    totalEl.textContent = "€" + grandTotal.toFixed(0);
-    totalNoteEl.textContent = days === 1 ? "per day · €" + dailyTotal.toFixed(2) + "/day" : days + " days total · €" + dailyTotal.toFixed(2) + "/day";
+    // Total with promo
+    if (hasPromo) {
+      totalEl.innerHTML = '<span class="calc-total-strikethrough">€' + grandTotal.toFixed(0) + '</span> €' + promoPrice;
+      totalNoteEl.textContent = "All prices include 23% VAT · " + days + " day" + (days > 1 ? "s" : "");
+      
+      const promoEl = document.getElementById("calcPromo");
+      if (promoEl) {
+        promoEl.style.display = "flex";
+        promoEl.innerHTML = '<span class="calc-promo-badge">SAVE ' + promoPercent + '%</span> Last-minute price — book now!';
+      }
+    } else {
+      totalEl.textContent = "€" + grandTotal.toFixed(0);
+      totalNoteEl.textContent = "All prices include 23% VAT · " + (days === 1 ? "per day" : days + " days total");
+      
+      const promoEl = document.getElementById("calcPromo");
+      if (promoEl) promoEl.style.display = "none";
+    }
 
     // Per-head cost
+    const displayPrice = hasPromo ? promoPrice : grandTotal;
     if (headphones > 0) {
-      perHeadEl.textContent = "€" + perHead.toFixed(2) + " per headphone · €" + hpUnit + " each";
+      perHeadEl.textContent = "€" + (displayPrice / headphones).toFixed(2) + " per headphone · €" + hpUnit + " each";
       perHeadEl.style.display = "block";
     } else {
       perHeadEl.style.display = "none";
@@ -111,7 +137,9 @@ document.addEventListener("keydown", (e) => {
     // WhatsApp message
     const gearList = headphones + " headphones, " + transmitters + " transmitter" + (transmitters > 1 ? "s" : "");
     const extras = charger ? " + charging station" : "";
-    const msg = "Hi! I'd like to book a silent disco package:\n\n" + gearList + extras + "\n" + days + " day" + (days > 1 ? "s" : "") + " — Total: €" + grandTotal.toFixed(2) + "\n\nCan you confirm availability?";
+    const finalPrice = hasPromo ? promoPrice : grandTotal;
+    const promoNote = hasPromo ? " (promo price!)" : "";
+    const msg = "Hi! I'd like to book a silent disco package:\n\n" + gearList + extras + "\n" + days + " day" + (days > 1 ? "s" : "") + " — Total: €" + finalPrice + promoNote + "\n\nAll prices include 23% VAT.\nCan you confirm availability?";
     bookBtn.href = "https://wa.me/351926298278?text=" + encodeURIComponent(msg);
   }
 
