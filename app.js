@@ -72,20 +72,25 @@ document.addEventListener("keydown", (e) => {
     const grandTotal = dailyTotal * days;
     const perHead = headphones > 0 ? (grandTotal / headphones) : 0;
 
-    // Promo rounding: round down to nearest 10, extra 10 if last digit is 1-4
+    // Promo rounding: only for quotes above €80
     let promoPrice;
-    if (grandTotal < 10) {
-      promoPrice = 0;
-    } else {
-      const lastDigit = Math.round(grandTotal) % 10;
-      promoPrice = Math.floor(grandTotal / 10) * 10;
-      if (lastDigit >= 1 && lastDigit <= 4) {
-        promoPrice -= 10;
+    let hasPromo = false;
+    if (grandTotal > 80) {
+      hasPromo = true;
+      if (days === 1 && grandTotal > 200 && grandTotal <= 500) {
+        promoPrice = 195;
+      } else if (grandTotal > 500) {
+        promoPrice = 495;
+      } else {
+        const lastDigit = Math.round(grandTotal) % 10;
+        promoPrice = Math.floor(grandTotal / 10) * 10;
+        if (lastDigit >= 1 && lastDigit <= 4) {
+          promoPrice -= 10;
+        }
       }
     }
-    const promoSaving = grandTotal - promoPrice;
-    const promoPercent = grandTotal > 0 ? Math.round((promoSaving / grandTotal) * 100) : 0;
-    const hasPromo = promoSaving > 0;
+    const promoSaving = hasPromo ? grandTotal - promoPrice : 0;
+    const promoPercent = hasPromo && grandTotal > 0 ? Math.round((promoSaving / grandTotal) * 100) : 0;
 
     // Update slider display
     headphoneVal.textContent = headphones;
