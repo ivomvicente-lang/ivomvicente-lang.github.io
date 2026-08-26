@@ -72,12 +72,16 @@ document.addEventListener("keydown", (e) => {
     const grandTotal = dailyTotal * days;
     const perHead = headphones > 0 ? (grandTotal / headphones) : 0;
 
-    // Promo rounding: clean up the price
+    // Promo rounding: round down to nearest 10, extra 10 if last digit is 1-4
     let promoPrice;
-    if (grandTotal < 100) {
-      promoPrice = Math.floor(grandTotal / 10) * 10;
+    if (grandTotal < 10) {
+      promoPrice = 0;
     } else {
-      promoPrice = Math.floor(grandTotal / 100) * 100;
+      const lastDigit = Math.round(grandTotal) % 10;
+      promoPrice = Math.floor(grandTotal / 10) * 10;
+      if (lastDigit >= 1 && lastDigit <= 4) {
+        promoPrice -= 10;
+      }
     }
     const promoSaving = grandTotal - promoPrice;
     const promoPercent = grandTotal > 0 ? Math.round((promoSaving / grandTotal) * 100) : 0;
