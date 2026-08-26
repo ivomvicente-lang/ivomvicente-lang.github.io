@@ -81,6 +81,10 @@ document.addEventListener("keydown", (e) => {
         promoPrice = 195;
       } else if (grandTotal > 500) {
         promoPrice = 495;
+      } else if (days >= 2 && grandTotal >= 300 && grandTotal < 500) {
+        const floored = Math.floor(grandTotal / 10) * 10;
+        const inSecondHalf = (grandTotal % 100) >= 50;
+        promoPrice = floored - (inSecondHalf ? 20 : 10);
       } else {
         const lastDigit = Math.round(grandTotal) % 10;
         promoPrice = Math.floor(grandTotal / 10) * 10;
