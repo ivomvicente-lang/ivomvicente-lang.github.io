@@ -221,6 +221,13 @@
     }
     .foot { text-align: center; margin-top: 2rem; color: var(--muted); font-size: 0.8rem; }
 
+    .tt { position: fixed; z-index: 50; max-width: 300px; background: var(--dark-brown); color: var(--cream);
+          padding: 0.7rem 0.85rem; border-radius: 8px; box-shadow: 0 6px 18px rgba(44,24,16,0.25);
+          font-size: 0.8rem; line-height: 1.55; pointer-events: none; opacity: 0; transition: opacity 0.12s ease; }
+    .tt.show { opacity: 1; }
+    .tt .tt-name { font-family: "Playfair Display", serif; font-weight: 700; color: var(--gold); margin-bottom: 0.25rem; }
+    .tt .tt-sec { color: var(--gold); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.4rem; font-family: "JetBrains Mono", monospace; }
+
     .chart-panel {
       margin-top: 1.75rem;
       background: var(--paper);
@@ -358,6 +365,8 @@
     </div>
   </div>
 
+  <div class="tt" id="tooltip"></div>
+
   <script>
     // ── Weekly price data ─────────────────────────────────────────
     // buyPrice  = EOD close on Aug 18, 2026 (date the position was opened)
@@ -368,22 +377,31 @@
       latestNote: "Aug 31, 2026 close · update weekly",
       stocks: {
         IMAX: { name: "IMAX Corp",          desc: "Premium large-format cinema · box-office boom",
+                sector: "Communication Services · Cinemas",
                 exch: "NYSE", buyPrice: 50.55,  prices: [53.71,52.74,52.74,54.79,53.90,52.76,51.94,50.38,51.20] },
         RDDT: { name: "Reddit",             desc: "Social media & AI data-licensing",
+                sector: "Communication Services · Internet",
                 exch: "NYSE", buyPrice: 158.25, prices: [151.71,150.31,153.29,152.70,162.45,155.36,153.95,153.00,147.81] },
         MELI: { name: "MercadoLibre",       desc: "LatAm e-commerce & fintech",
+                sector: "Consumer Discretionary · E-commerce",
                 exch: "NASDAQ", buyPrice: 1779.14, prices: [1908.65,1921.96,1922.73,1947.90,1997.00,1950.44,1930.75,1966.25,1936.20] },
         ADBE: { name: "Adobe",              desc: "Creative software · AI push",
+                sector: "Technology · Software",
                 exch: "NASDAQ", buyPrice: 263.14, prices: [272.47,272.22,275.30,276.27,273.92,273.47,289.15,291.52,292.79] },
         NKE:  { name: "Nike",               desc: "Brand turnaround candidate",
+                sector: "Consumer Discretionary · Apparel",
                 exch: "NYSE", buyPrice: 40.06,  prices: [41.05,40.21,40.76,40.75,39.48,38.59,38.44,39.60,39.06] },
         ROL:  { name: "Rollins",            desc: "Pest control · defensive play",
+                sector: "Industrials · Specialty Services",
                 exch: "NYSE", buyPrice: 36.32,  prices: [36.26,36.38,36.91,37.26,36.36,36.70,35.94,36.38,36.07] },
         CPRT: { name: "Copart",             desc: "Salvage auto auction network",
+                sector: "Industrials · Auto Services",
                 exch: "NASDAQ", buyPrice: 31.51,  prices: [33.85,34.33,33.80,33.26,33.33,32.67,32.76,32.99,32.99] },
         NBIS: { name: "Nebius Group",       desc: "AI neocloud · high volatility",
+                sector: "Technology · AI Cloud",
                 exch: "NASDAQ", buyPrice: 248.43, prices: [223.90,220.11,219.13,210.91,221.97,213.93,218.48,209.18,206.32] },
         CAVA: { name: "CAVA Group",         desc: "Mediterranean fast-casual",
+                sector: "Consumer Discretionary · Restaurants",
                 exch: "NYSE", buyPrice: 68.24,  prices: [71.57,72.03,73.63,71.93,69.29,67.77,66.95,66.94,65.75] }
       }
     };
@@ -416,7 +434,7 @@
 
         const row = document.createElement("tr");
         row.innerHTML =
-          '<td class="tick">' + tick + '</td>' +
+          '<td class="tick" data-desc="' + s.desc.replace(/"/g, "&quot;") + '" data-sector="' + s.sector.replace(/"/g, "&quot;") + '">' + tick + '</td>' +
           '<td class="name">' + s.name + '</td>' +
           '<td class="num">' + fmt(buy) + '</td>' +
           '<td class="num">' + fmt(now) + '</td>' +
@@ -428,6 +446,13 @@
           '<td class="num dd">' + ((dd <= 0 ? "" : "+") + dd.toFixed(2) + "%") + '</td>';
         row.style.cursor = "pointer";
         row.title = "Open weekly chart for " + tick;
+        const tickCell = row.querySelector(".tick");
+        tickCell.style.cursor = "help";
+        tickCell.addEventListener("mouseenter", function () {
+          showTip(this, tick, s);
+        });
+        tickCell.addEventListener("mousemove", function (e) { moveTip(e, tick); });
+        tickCell.addEventListener("mouseleave", hideTip);
         row.addEventListener("click", () => showChart(tick, s));
         dst.appendChild(row);
       }
@@ -450,6 +475,26 @@
       document.getElementById("asOfLine").innerHTML =
         "Prices: " + WEEKLY.asOf + "<br>" + WEEKLY.latestNote;
     }
+
+    // ── Hover tooltip on ticker ──
+    const tooltip = document.getElementById("tooltip");
+    function showTip(cell, tick, s) {
+      tooltip.innerHTML =
+        '<div class="tt-name">' + tick + " · " + s.name + "</div>" +
+        '<div>' + s.desc + "</div>" +
+        '<div class="tt-sec">' + s.sector + "</div>";
+      tooltip.classList.add("show");
+    }
+    function moveTip(e) {
+      const pad = 14;
+      const w = tooltip.offsetWidth, h = tooltip.offsetHeight;
+      let x = e.clientX + pad, y = e.clientY + pad;
+      if (x + w > window.innerWidth - 8) x = e.clientX - w - pad;
+      if (y + h > window.innerHeight - 8) y = e.clientY - h - pad;
+      tooltip.style.left = x + "px";
+      tooltip.style.top = y + "px";
+    }
+    function hideTip() { tooltip.classList.remove("show"); }
 
     // ── Inline TradingView chart ──
     // The embed widget caches its container element internally, so reusing the
