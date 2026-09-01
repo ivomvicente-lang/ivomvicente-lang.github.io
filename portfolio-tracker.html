@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+  <title>Portfolio Tracker — No Noise Party</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #faf6f0;
+      --paper: #f3ece1;
+      --brown: #5c4033;
+      --dark-brown: #3a2618;
+      --terracotta: #c75b39;
+      --olive: #6b7c4e;
+      --burnt: #b85c38;
+      --gold: #c9a96e;
+      --ink: #2c1810;
+      --muted: #8a7565;
+      --line: #d4c5b2;
+      --red: #b8382a;
+      --green: #5a7c3e;
+      --amber: #d4930d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Lora", Georgia, serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 2rem;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(199, 91, 57, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(107, 124, 78, 0.03) 0%, transparent 50%);
+    }
+
+    /* ── Login Gate ── */
+    .login-gate {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+    }
+    .login-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 8px 30px rgba(44, 24, 16, 0.08);
+    }
+    .stamp {
+      display: inline-block;
+      border: 3px solid var(--terracotta);
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      line-height: 80px;
+      text-align: center;
+      font-family: "Playfair Display", serif;
+      font-weight: 900;
+      font-size: 0.55rem;
+      color: var(--terracotta);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      transform: rotate(-12deg);
+      margin-bottom: 1.25rem;
+      position: relative;
+    }
+    .stamp::after {
+      content: "";
+      position: absolute;
+      inset: 4px;
+      border: 1px solid var(--terracotta);
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+    .login-card h2 {
+      font-family: "Playfair Display", serif;
+      font-weight: 900;
+      font-size: 1.5rem;
+      color: var(--dark-brown);
+      margin-bottom: 0.3rem;
+    }
+    .login-card .subtitle {
+      font-style: italic;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    .login-input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: rgba(255,255,255,0.6);
+      color: var(--ink);
+      text-align: center;
+      letter-spacing: 0.15em;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .login-input:focus { border-color: var(--terracotta); }
+    .login-input.error { border-color: var(--red); animation: shake 0.4s ease; }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+    .login-btn {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.8rem;
+      font-family: "Playfair Display", serif;
+      font-weight: 700;
+      font-size: 1rem;
+      background: var(--terracotta);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(199, 91, 57, 0.25);
+      transition: transform 0.12s, box-shadow 0.2s;
+    }
+    .login-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(199, 91, 57, 0.35);
+    }
+    .login-error { color: var(--red); font-size: 0.82rem; margin-top: 0.75rem; font-style: italic; min-height: 1.2em; }
+    .skip-link { display: inline-block; margin-top: 1rem; color: var(--muted); font-size: 0.82rem; text-decoration: underline; cursor: pointer; font-style: italic; }
+    .skip-link:hover { color: var(--ink); }
+
+    /* ── Dashboard ── */
+    .dashboard { display: none; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      border-bottom: 3px double var(--line);
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    header h1 {
+      font-family: "Playfair Display", serif;
+      font-weight: 900;
+      font-size: 1.8rem;
+      color: var(--dark-brown);
+    }
+    header .head-notes {
+      text-align: right;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.75rem;
+    }
+    .summary-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem;
+      box-shadow: 0 4px 14px rgba(44, 24, 16, 0.06);
+    }
+    .summary-card .k { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); }
+    .summary-card .v { font-family: "JetBrains Mono", monospace; font-size: 1.35rem; font-weight: 700; margin-top: 0.25rem; }
+    .summary-card .s { font-size: 0.8rem; margin-top: 0.15rem; font-style: italic; }
+
+    .table-wrap {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow-x: auto;
+      box-shadow: 0 4px 14px rgba(44, 24, 16, 0.06);
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 760px; }
+    th, td { padding: 0.7rem 0.85rem; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th { font-family: "Playfair Display", serif; font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); background: rgba(201, 169, 110, 0.12); }
+    td.tick { text-align: left; font-weight: 700; }
+    td.name { text-align: left; color: var(--muted); font-size: 0.8rem; }
+    td.num { font-family: "JetBrains Mono", monospace; }
+    tbody tr:hover { background: rgba(212, 197, 178, 0.25); }
+    tfoot td { font-weight: 700; border-bottom: none; border-top: 2px solid var(--line); background: rgba(201,169,110,0.1); }
+
+    .pos { font-weight: 700; }
+    .pos.up { color: var(--green); }
+    .pos.down { color: var(--red); }
+    .dd { color: var(--red); }
+
+    .note {
+      margin-top: 1.25rem;
+      padding: 0.9rem 1.1rem;
+      border-left: 4px solid var(--gold);
+      background: var(--paper);
+      border-radius: 0 10px 10px 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+    }
+    .foot { text-align: center; margin-top: 2rem; color: var(--muted); font-size: 0.8rem; }
+
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      header .head-notes { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login gate -->
+  <div class="login-gate" id="loginGate">
+    <div class="login-card">
+      <span class="stamp">Portfolio<br>Tracker</span>
+      <h2>No Noise Party</h2>
+      <p class="subtitle">Portfolio dashboard — sign in</p>
+      <input type="password" id="passInput" class="login-input" placeholder="PASSCODE" autocomplete="current-password" maxlength="32">
+      <button class="login-btn" id="loginBtn">Unlock</button>
+      <p class="login-error" id="loginError"></p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="dashboard" id="dashboard">
+    <div class="container">
+      <header>
+        <h1>Stock Portfolio</h1>
+        <div class="head-notes" id="asOfLine"></div>
+      </header>
+
+      <div class="summary">
+        <div class="summary-card">
+          <div class="k">Portfolio value</div>
+          <div class="v" id="sumValue">—</div>
+          <div class="s" id="sumValueNote">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="k">P&amp;L (all-time)</div>
+          <div class="v" id="sumPnl">—</div>
+          <div class="s" id="sumPnlPct">—</div>
+        </div>
+        <div class="summary-card">
+          <div class="k">Cost basis</div>
+          <div class="v" id="sumCost">—</div>
+          <div class="s">$10,000 · equal weight 1/9</div>
+        </div>
+        <div class="summary-card">
+          <div class="k">Best / worst</div>
+          <div class="v" id="sumBestWorst">—</div>
+          <div class="s">since purchase</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Stock</th>
+              <th>Buy Px</th>
+              <th>Now</th>
+              <th>Shares</th>
+              <th>Value</th>
+              <th>P&amp;L</th>
+              <th>Wk High</th>
+              <th>Drawdown</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4">TOTAL</td>
+              <td class="num" id="ftValue">—</td>
+              <td class="num" id="ftPnl">—</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="note">
+        <strong>How to read this:</strong> Positions are an equal 1/9 split (~$1,111.11 each) of the $10,000 portfolio opened
+        Aug&nbsp;18, 2026 (EOD close, per Joseph Carlson's picks). &ldquo;Buy Px&rdquo; is the closing price on Aug&nbsp;18.
+        &ldquo;Wk High&rdquo; is the highest close since purchase and &ldquo;Drawdown&rdquo; is how far the current price sits
+        below that high. Update the weekly prices below the table and refresh to regenerate every figure automatically.
+      </div>
+
+      <div class="foot">Portfolio tracker &middot; No Noise Party &middot; internal tool &middot; prices as of latest recorded close</div>
+    </div>
+  </div>
+
+  <script>
+    // ── Weekly price data ─────────────────────────────────────────
+    // buyPrice  = EOD close on Aug 18, 2026 (date the position was opened)
+    // dates[]   = one entry per trading day after purchase, OLDEST → NEWEST
+    // To update each week: append today's closing price to the end of `prices`.
+    const WEEKLY = {
+      asOf: "Aug 31, 2026",
+      latestNote: "Aug 31, 2026 close · update weekly",
+      stocks: {
+        IMAX: { name: "IMAX Corp",          desc: "Premium large-format cinema · box-office boom",
+                buyPrice: 50.55,  prices: [53.71,52.74,52.74,54.79,53.90,52.76,51.94,50.38,51.20] },
+        RDDT: { name: "Reddit",             desc: "Social media & AI data-licensing",
+                buyPrice: 158.25, prices: [151.71,150.31,153.29,152.70,162.45,155.36,153.95,153.00,147.81] },
+        MELI: { name: "MercadoLibre",       desc: "LatAm e-commerce & fintech",
+                buyPrice: 1779.14, prices: [1908.65,1921.96,1922.73,1947.90,1997.00,1950.44,1930.75,1966.25,1936.20] },
+        ADBE: { name: "Adobe",              desc: "Creative software · AI push",
+                buyPrice: 263.14, prices: [272.47,272.22,275.30,276.27,273.92,273.47,289.15,291.52,292.79] },
+        NKE:  { name: "Nike",               desc: "Brand turnaround candidate",
+                buyPrice: 40.06,  prices: [41.05,40.21,40.76,40.75,39.48,38.59,38.44,39.60,39.06] },
+        ROL:  { name: "Rollins",            desc: "Pest control · defensive play",
+                buyPrice: 36.32,  prices: [36.26,36.38,36.91,37.26,36.36,36.70,35.94,36.38,36.07] },
+        CPRT: { name: "Copart",             desc: "Salvage auto auction network",
+                buyPrice: 31.51,  prices: [33.85,34.33,33.80,33.26,33.33,32.67,32.76,32.99,32.99] },
+        NBIS: { name: "Nebius Group",       desc: "AI neocloud · high volatility",
+                buyPrice: 248.43, prices: [223.90,220.11,219.13,210.91,221.97,213.93,218.48,209.18,206.32] },
+        CAVA: { name: "CAVA Group",         desc: "Mediterranean fast-casual",
+                buyPrice: 68.24,  prices: [71.57,72.03,73.63,71.93,69.29,67.77,66.95,66.94,65.75] }
+      }
+    };
+
+    const ALLOC = 10000 / Object.keys(WEEKLY.stocks).length;
+
+    const fmt = (n, d) =>
+      n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: d === undefined ? 2 : d });
+    const fmtPct = (n) => (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
+
+    function build(dst) {
+      let totalCost = 0, totalVal = 0;
+      let best = null, worst = null;
+
+      for (const [tick, s] of Object.entries(WEEKLY.stocks)) {
+        const buy = s.buyPrice;
+        const now = s.prices[s.prices.length - 1];
+        const shares = ALLOC / buy;
+        const cost = shares * buy;
+        const val = shares * now;
+        const pnl = val - cost;
+        const pnlPct = (pnl / cost) * 100;
+        const wkHigh = Math.max(buy, ...s.prices);
+        const dd = ((now / wkHigh) - 1) * 100;
+
+        totalCost += cost;
+        totalVal += val;
+        if (!best || pnlPct > best[1]) best = [tick, pnlPct];
+        if (!worst || pnlPct < worst[1]) worst = [tick, pnlPct];
+
+        const row = document.createElement("tr");
+        row.innerHTML =
+          '<td class="tick">' + tick + '</td>' +
+          '<td class="name">' + s.name + '</td>' +
+          '<td class="num">' + fmt(buy) + '</td>' +
+          '<td class="num">' + fmt(now) + '</td>' +
+          '<td class="num">' + shares.toFixed(3) + '</td>' +
+          '<td class="num">' + fmt(val) + '</td>' +
+          '<td class="num pos ' + (pnl >= 0 ? "up" : "down") + '">' + (pnl >= 0 ? "+" : "−") + fmt(Math.abs(pnl)).slice(1) +
+            ' <span class="dd">(' + fmtPct(pnlPct) + ')</span></td>' +
+          '<td class="num">' + fmt(wkHigh) + '</td>' +
+          '<td class="num dd">' + ((dd <= 0 ? "" : "+") + dd.toFixed(2) + "%") + '</td>';
+        dst.appendChild(row);
+      }
+
+      const totPnl = totalVal - totalCost;
+      const totPct = (totPnl / totalCost) * 100;
+      document.getElementById("ftValue").textContent = fmt(totalVal);
+      document.getElementById("ftPnl").textContent = totPnl >= 0 ? "+" + fmt(totPnl) : "−" + fmt(Math.abs(totPnl)).slice(1);
+      document.getElementById("ftPnl").className = "num " + (totPnl >= 0 ? "pos up" : "pos down");
+
+      document.getElementById("sumValue").textContent = fmt(totalVal);
+      document.getElementById("sumValueNote").textContent = "≈ " + Math.round(totalVal / totalCost * 1000) / 10 + "x cost";
+      document.getElementById("sumCost").textContent = fmt(totalCost);
+      document.getElementById("sumPnl").textContent = totPnl >= 0 ? "+" + fmt(totPnl) : "−" + fmt(Math.abs(totPnl)).slice(1);
+      document.getElementById("sumPnl").style.color = totPnl >= 0 ? "var(--green)" : "var(--red)";
+      document.getElementById("sumPnlPct").textContent = fmtPct(totPct);
+      document.getElementById("sumPnlPct").style.color = totPnl >= 0 ? "var(--green)" : "var(--red)";
+      document.getElementById("sumBestWorst").innerHTML =
+        best[0] + " " + fmtPct(best[1]) + " / " + worst[0] + " " + fmtPct(worst[1]);
+      document.getElementById("asOfLine").innerHTML =
+        "Prices: " + WEEKLY.asOf + "<br>" + WEEKLY.latestNote;
+    }
+
+    // ── Login ──
+    const KEY = "nnp_tracker_admin";
+    const PASSCODE = "Technigo2020!";
+    const passInput = document.getElementById("passInput");
+    const loginError = document.getElementById("loginError");
+
+    function lock() { sessionStorage.removeItem(KEY); location.reload(); }
+    function unlock() {
+      document.getElementById("loginGate").style.display = "none";
+      document.querySelector(".dashboard").style.display = "block";
+      build(document.getElementById("tbody"));
+    }
+
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      if (passInput.value === PASSCODE) { sessionStorage.setItem(KEY, "1"); unlock(); }
+      else {
+        passInput.classList.add("error");
+        loginError.textContent = "Incorrect passcode";
+        setTimeout(() => passInput.classList.remove("error"), 400);
+        passInput.value = "";
+      }
+    });
+    passInput.addEventListener("keydown", (e) => { if (e.key === "Enter") document.getElementById("loginBtn").click(); });
+
+    if (sessionStorage.getItem(KEY) === "1") unlock();
+  </script>
+</body>
+</html>

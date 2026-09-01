@@ -1,2 +1,5 @@
 node_modules/
 .DS_Store
+meeting-api/
+reminder_check.py
+reminder.log
