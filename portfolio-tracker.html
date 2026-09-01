@@ -256,7 +256,8 @@
     #chartHost { position: relative; }
     #chartHost .ct-loading {
       position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      color: var(--muted); font-style: italic; font-size: 0.9rem; z-index: 1;
+      color: var(--muted); font-style: italic; font-size: 0.9rem; z-index: 5;
+      background: var(--paper);
     }
     #chartHost iframe { position: relative; z-index: 2; }
 
@@ -342,9 +343,7 @@
           <div class="ct-title" id="chartTitle">Chart</div>
           <button class="ct-close" id="chartClose">Close ✕</button>
         </div>
-        <div id="chartHost">
-          <div class="ct-loading" id="chartLoading">Loading chart…</div>
-        </div>
+        <div id="chartHost" style="position:relative"></div>
       </div>
 
       <div class="note">
@@ -453,8 +452,12 @@
     }
 
     // ── Inline TradingView chart ──
+    // The embed widget caches its container element internally, so reusing the
+    // same #chartHost after a widget was already built silently fails. Fix: give
+    // every render its own fresh container element (unique id) and clear the old one.
     let tvWidget = null;
     let activeTicker = null;
+    let chartSeq = 0;
 
     function loadTV() {
       return new Promise((resolve) => {
@@ -466,22 +469,36 @@
       });
     }
 
+    function destroyWidget() {
+      if (tvWidget) {
+        try { tvWidget.remove(); } catch (e) {}
+        tvWidget = null;
+      }
+      const host = document.getElementById("chartHost");
+      if (host) host.innerHTML = "";
+    }
+
     function showChart(tick, s) {
-      if (activeTicker === tick && tvWidget) return;
+      if (!WEEKLY.stocks[tick]) return;
+      destroyWidget();
       activeTicker = tick;
+
       const panel = document.getElementById("chartPanel");
       const host = document.getElementById("chartHost");
-      document.getElementById("chartLoading").style.display = "flex";
       document.getElementById("chartTitle").innerHTML =
         tick + " <small>· " + WEEKLY.stocks[tick].name + " · weekly</small>";
-      host.innerHTML = "";
       panel.classList.remove("hidden");
       panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
+      const containerId = "tvChart_" + (++chartSeq);
+      host.innerHTML =
+        '<div class="ct-loading" id="chartLoading">Loading chart…</div>' +
+        '<div id="' + containerId + '" style="height:460px"></div>';
+
       loadTV().then(() => {
-        if (tvWidget) { try { tvWidget.remove(); } catch (e) {} }
+        if (activeTicker !== tick) return;
         tvWidget = new TradingView.widget({
-          container_id: "chartHost",
+          container_id: containerId,
           symbol: s.exch + ":" + tick,
           interval: "W",
           width: "100%",
@@ -495,15 +512,15 @@
           toolbar_bg: "#f3ece1",
           enable_publishing: false
         });
-        document.getElementById("chartLoading").style.display = "none";
+        const loader = document.getElementById("chartLoading");
+        if (loader) loader.style.display = "none";
       });
     }
 
     function closeChart() {
-      document.getElementById("chartPanel").classList.add("hidden");
-      document.getElementById("chartHost").innerHTML = "";
-      if (tvWidget) { try { tvWidget.remove(); } catch (e) {} tvWidget = null; }
+      destroyWidget();
       activeTicker = null;
+      document.getElementById("chartPanel").classList.add("hidden");
     }
     document.getElementById("chartClose").addEventListener("click", closeChart);
 
