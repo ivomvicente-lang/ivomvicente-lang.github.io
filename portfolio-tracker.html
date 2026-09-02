@@ -176,6 +176,32 @@
       gap: 1rem;
       margin-bottom: 1.75rem;
     }
+
+    .refresh-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .refresh-btn {
+      font-family: "Playfair Display", serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      background: var(--dark-brown);
+      color: var(--cream);
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(44, 24, 16, 0.18);
+      transition: transform 0.12s, opacity 0.2s;
+    }
+    .refresh-btn:hover { transform: translateY(-1px); }
+    .refresh-btn:disabled { opacity: 0.55; cursor: default; transform: none; }
+    .refresh-status { font-size: 0.82rem; color: var(--muted); font-style: italic; }
+    .refresh-status.ok { color: var(--green); }
+    .refresh-status.err { color: var(--red); }
     .summary-card {
       background: var(--paper);
       border: 1px solid var(--line);
@@ -296,6 +322,11 @@
         <div class="head-notes" id="asOfLine"></div>
       </header>
 
+      <div class="refresh-bar">
+        <button class="refresh-btn" id="refreshBtn">↻ Refresh prices</button>
+        <span class="refresh-status" id="refreshStatus"></span>
+      </div>
+
       <div class="summary">
         <div class="summary-card">
           <div class="k">Portfolio value</div>
@@ -354,11 +385,12 @@
       </div>
 
       <div class="note">
-        <strong>Click any row</strong> to open a weekly candlestick chart for that stock.
+        <strong>Prices are live</strong> — "Now", value and P&amp;L update with the latest market close each time you open
+        the page. <strong>Click any row</strong> to open a weekly candlestick chart for that stock.
         <strong>How to read this:</strong> Positions are an equal 1/9 split (~$1,111.11 each) of the $10,000 portfolio opened
         Aug&nbsp;18, 2026 (EOD close, per Joseph Carlson's picks). &ldquo;Buy Px&rdquo; is the closing price on Aug&nbsp;18.
         &ldquo;Wk High&rdquo; is the highest close since purchase and &ldquo;Drawdown&rdquo; is how far the current price sits
-        below that high. Update the weekly prices below the table and refresh to regenerate every figure automatically.
+        below that high. Hover a ticker for its description and sector.
       </div>
 
       <div class="foot">Joseph Carlson · 18 Aug 2026 9 Stock Picks &middot; internal tool &middot; prices as of latest recorded close</div>
@@ -368,13 +400,13 @@
   <div class="tt" id="tooltip"></div>
 
   <script>
-    // ── Weekly price data ─────────────────────────────────────────
+    // ── Stock data ─────────────────────────────────────────────────
     // buyPrice  = EOD close on Aug 18, 2026 (date the position was opened)
-    // dates[]   = one entry per trading day after purchase, OLDEST → NEWEST
-    // To update each week: append today's closing price to the end of `prices`.
+    // prices[]  = historical closes used for context (week-high) & offline fallback.
+    // Current price is fetched LIVE on load from TradingView's scanner API.
     const WEEKLY = {
       asOf: "Aug 31, 2026",
-      latestNote: "Aug 31, 2026 close · update weekly",
+      latestNote: "live market close · fetched on load",
       stocks: {
         IMAX: { name: "IMAX Corp",          desc: "Premium large-format cinema · box-office boom",
                 sector: "Communication Services · Cinemas",
@@ -412,19 +444,21 @@
       n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: d === undefined ? 2 : d });
     const fmtPct = (n) => (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
 
-    function build(dst) {
+    function build(dst, live) {
       let totalCost = 0, totalVal = 0;
       let best = null, worst = null;
 
       for (const [tick, s] of Object.entries(WEEKLY.stocks)) {
         const buy = s.buyPrice;
-        const now = s.prices[s.prices.length - 1];
+        const liveRow = live ? live[tick] : null;
+        const now = liveRow ? liveRow.close : s.prices[s.prices.length - 1];
+        const sector = liveRow && liveRow.sector ? liveRow.sector : s.sector;
         const shares = ALLOC / buy;
         const cost = shares * buy;
         const val = shares * now;
         const pnl = val - cost;
         const pnlPct = (pnl / cost) * 100;
-        const wkHigh = Math.max(buy, ...s.prices);
+        const wkHigh = liveRow ? Math.max(buy, ...s.prices, now) : Math.max(buy, ...s.prices);
         const dd = ((now / wkHigh) - 1) * 100;
 
         totalCost += cost;
@@ -434,7 +468,7 @@
 
         const row = document.createElement("tr");
         row.innerHTML =
-          '<td class="tick" data-desc="' + s.desc.replace(/"/g, "&quot;") + '" data-sector="' + s.sector.replace(/"/g, "&quot;") + '">' + tick + '</td>' +
+          '<td class="tick" data-desc="' + s.desc.replace(/"/g, "&quot;") + '" data-sector="' + sector.replace(/"/g, "&quot;") + '">' + tick + '</td>' +
           '<td class="name">' + s.name + '</td>' +
           '<td class="num">' + fmt(buy) + '</td>' +
           '<td class="num">' + fmt(now) + '</td>' +
@@ -473,7 +507,51 @@
       document.getElementById("sumBestWorst").innerHTML =
         best[0] + " " + fmtPct(best[1]) + " / " + worst[0] + " " + fmtPct(worst[1]);
       document.getElementById("asOfLine").innerHTML =
-        "Prices: " + WEEKLY.asOf + "<br>" + WEEKLY.latestNote;
+        live
+          ? 'Prices: <strong>live</strong> (TradingView)' + "<br>" + WEEKLY.latestNote
+          : 'Prices: ' + WEEKLY.asOf + " (offline fallback)" + "<br>" + WEEKLY.latestNote;
+      const rs = document.getElementById("refreshStatus");
+      if (rs && live !== null) {
+        rs.textContent = live
+          ? "Updated " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) + " · live closes"
+          : "Could not reach price feed — showing saved closes";
+        rs.className = "refresh-status " + (live ? "ok" : "err");
+      }
+    }
+
+    // ── Live prices via TradingView scanner (CORS-enabled) ──
+    // Fetches current market-price "close" + sector for all tickers in one request.
+    let lastLive = null;
+
+    function loadLive() {
+      const tickers = Object.keys(WEEKLY.stocks).map(function (t) {
+        return WEEKLY.stocks[t].exch + ":" + t;
+      });
+      const body = {
+        symbols: { tickers: tickers, query: { types: [] } },
+        columns: ["name", "close", "description", "logoid", "sector"],
+        options: { lang: "en" },
+        markets: ["america"],
+        sort: { sortBy: "name", sortOrder: "asc" }
+      };
+      return fetch("https://scanner.tradingview.com/america/scan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (json) {
+          const map = {};
+          (json.data || []).forEach(function (d) {
+            const sym = d.s;
+            const parts = sym.split(":");
+            const tick = parts[parts.length - 1];
+            map[tick] = { close: d.d[1], sector: d.d[4], name: d.d[0] };
+          });
+          lastLive = map;
+          return map;
+        })
+        .catch(function () { return null; });
     }
 
     // ── Hover tooltip on ticker ──
@@ -579,7 +657,19 @@
     function unlock() {
       document.getElementById("loginGate").style.display = "none";
       document.querySelector(".dashboard").style.display = "block";
-      build(document.getElementById("tbody"));
+      const btn = document.getElementById("refreshBtn");
+      const tbody = document.getElementById("tbody");
+      function refresh(silent) {
+        if (btn && !silent) { btn.disabled = true; btn.textContent = "Refreshing…"; }
+        build(tbody, lastLive);
+        return loadLive().then(function (live) {
+          lastLive = live;
+          build(tbody, live);
+          if (btn && !silent) { btn.disabled = false; btn.textContent = "↻ Refresh prices"; }
+        });
+      }
+      if (btn) btn.addEventListener("click", function () { refresh(false); });
+      refresh(true);
     }
 
     document.getElementById("loginBtn").addEventListener("click", () => {
