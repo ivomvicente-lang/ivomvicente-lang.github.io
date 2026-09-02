@@ -233,6 +233,7 @@
     .pos.up { color: var(--green); }
     .pos.down { color: var(--red); }
     .dd { color: var(--red); }
+    .pct { }
 
     .note {
       margin-top: 1.25rem;
@@ -475,7 +476,7 @@
           '<td class="num">' + shares.toFixed(3) + '</td>' +
           '<td class="num">' + fmt(val) + '</td>' +
           '<td class="num pos ' + (pnl >= 0 ? "up" : "down") + '">' + (pnl >= 0 ? "+" : "−") + fmt(Math.abs(pnl)).slice(1) +
-            ' <span class="dd">(' + fmtPct(pnlPct) + ')</span></td>' +
+            ' <span class="pct">(' + fmtPct(pnlPct) + ')</span></td>' +
           '<td class="num">' + fmt(wkHigh) + '</td>' +
           '<td class="num dd">' + ((dd <= 0 ? "" : "+") + dd.toFixed(2) + "%") + '</td>';
         row.style.cursor = "pointer";
@@ -505,7 +506,9 @@
       document.getElementById("sumPnlPct").textContent = fmtPct(totPct);
       document.getElementById("sumPnlPct").style.color = totPnl >= 0 ? "var(--green)" : "var(--red)";
       document.getElementById("sumBestWorst").innerHTML =
-        best[0] + " " + fmtPct(best[1]) + " / " + worst[0] + " " + fmtPct(worst[1]);
+        '<span style="color:var(--green)">' + best[0] + " " + fmtPct(best[1]) + "</span>" +
+        " / " +
+        '<span style="color:var(--red)">' + worst[0] + " " + fmtPct(worst[1]) + "</span>";
       document.getElementById("asOfLine").innerHTML =
         live
           ? 'Prices: <strong>live</strong> (TradingView)' + "<br>" + WEEKLY.latestNote
