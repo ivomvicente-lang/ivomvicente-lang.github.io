@@ -3,3 +3,4 @@ node_modules/
 meeting-api/
 reminder_check.py
 reminder.log
+futures_data/

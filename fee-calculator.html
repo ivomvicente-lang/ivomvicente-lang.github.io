@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Platform Fee Calculator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.3rem;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 2rem;
+    }
+
+    .fee-info {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .fee-badge {
+      flex: 1;
+      background: #111118;
+      border: 1px solid #1e1e2a;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      text-align: center;
+    }
+
+    .fee-badge .platform {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #666;
+      margin-bottom: 0.25rem;
+    }
+
+    .fee-badge .rate {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .fee-badge.booking .rate { color: #4a7dff; }
+    .fee-badge.airbnb .rate { color: #ff385c; }
+
+    .fee-badge .extra {
+      font-size: 0.7rem;
+      color: #555;
+      margin-top: 0.2rem;
+    }
+
+    .global-input {
+      margin-bottom: 2rem;
+    }
+
+    .global-input label {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .global-input .input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .global-input input {
+      flex: 1;
+      background: #111118;
+      border: 1px solid #1e1e2a;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .global-input input:focus {
+      border-color: #333;
+    }
+
+    .global-input .currency {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .apartments {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .apt-card {
+      background: #111118;
+      border: 1px solid #1e1e2a;
+      border-radius: 10px;
+      padding: 1.25rem;
+    }
+
+    .apt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .apt-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .apt-location {
+      font-size: 0.7rem;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .platforms {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .platform-col {
+      flex: 1;
+      text-align: center;
+    }
+
+    .platform-col .label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #555;
+      margin-bottom: 0.4rem;
+    }
+
+    .platform-col .price {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .platform-col .net {
+      font-size: 0.75rem;
+      color: #4a9;
+      margin-top: 0.3rem;
+    }
+
+    .platform-col.booking .price { color: #4a7dff; }
+    .platform-col.airbnb .price { color: #ff385c; }
+
+    .divider {
+      width: 1px;
+      background: #1e1e2a;
+    }
+
+    .formula {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #0d0d14;
+      border: 1px solid #1a1a24;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .formula code {
+      color: #888;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    @media (max-width: 400px) {
+      .platform-col .price { font-size: 1.3rem; }
+      .fee-info { flex-direction: column; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Platform Fee Calculator</h1>
+    <p class="subtitle">Set your target net — see what to charge on each platform</p>
+
+    <div class="fee-info">
+      <div class="fee-badge booking">
+        <div class="platform">Booking.com</div>
+        <div class="rate">23%</div>
+        <div class="extra">+ 10% Genius</div>
+      </div>
+      <div class="fee-badge airbnb">
+        <div class="platform">Airbnb</div>
+        <div class="rate">15.5%</div>
+      </div>
+    </div>
+
+    <div class="global-input">
+      <label>Target net per night (what you keep)</label>
+      <div class="input-row">
+        <input type="number" id="targetNet" value="77" min="0" step="1" inputmode="decimal">
+        <span class="currency">EUR</span>
+      </div>
+    </div>
+
+    <div class="apartments" id="apartments"></div>
+
+    <div class="formula">
+      <code>Booking: net = list × 0.90 × 0.77 = list × 0.693</code><br>
+      <code>Airbnb: net = list × 0.845</code><br>
+      <code>→ Booking list = net ÷ 0.693</code><br>
+      <code>→ Airbnb list = net ÷ 0.845</code>
+    </div>
+  </div>
+
+  <script>
+    const APARTMENTS = [
+      { name: 'T1', location: 'Salomé' },
+      { name: 'T1 RC', location: 'Salomé' },
+      { name: 'T2', location: 'Salomé' },
+      { name: 'T0', location: '' },
+    ];
+
+    const BOOKING_FEE = 0.23;
+    const BOOKING_GENIUS = 0.10;
+    const AIRBNB_FEE = 0.155;
+
+    // Booking: list price → 10% Genius discount → 23% host fee on discounted price
+    // net = list × (1 - 0.10) × (1 - 0.23) = list × 0.693
+    // list = net ÷ 0.693
+    const BOOKING_NET = (1 - BOOKING_GENIUS) * (1 - BOOKING_FEE); // 0.693
+
+    // Airbnb: list price → 15.5% host fee
+    // net = list × (1 - 0.155) = list × 0.845
+    const AIRBNB_NET = 1 - AIRBNB_FEE; // 0.845
+
+    function calc(targetNet) {
+      const booking = targetNet / BOOKING_NET;
+      const airbnb = targetNet / AIRBNB_NET;
+      const guestPaysBooking = booking * (1 - BOOKING_GENIUS);
+      return {
+        booking: Math.round(booking),
+        airbnb: Math.round(airbnb),
+        guestPaysBooking: Math.round(guestPaysBooking),
+        netBooking: Math.round(guestPaysBooking * (1 - BOOKING_FEE)),
+        netAirbnb: Math.round(airbnb * AIRBNB_NET),
+      };
+    }
+
+    function render() {
+      const target = parseFloat(document.getElementById('targetNet').value) || 0;
+      const container = document.getElementById('apartments');
+      container.innerHTML = '';
+
+      APARTMENTS.forEach(apt => {
+        const r = calc(target);
+        const card = document.createElement('div');
+        card.className = 'apt-card';
+        card.innerHTML = `
+          <div class="apt-header">
+            <span class="apt-name">${apt.name}</span>
+            ${apt.location ? `<span class="apt-location">${apt.location}</span>` : ''}
+          </div>
+          <div class="platforms">
+            <div class="platform-col booking">
+              <div class="label">Booking.com</div>
+              <div class="price">&euro;${r.booking}</div>
+              <div class="net">guest pays &euro;${r.guestPaysBooking}</div>
+              <div class="net">you get &euro;${r.netBooking}</div>
+            </div>
+            <div class="divider"></div>
+            <div class="platform-col airbnb">
+              <div class="label">Airbnb</div>
+              <div class="price">&euro;${r.airbnb}</div>
+              <div class="net">you get &euro;${r.netAirbnb}</div>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    document.getElementById('targetNet').addEventListener('input', render);
+    render();
+  </script>
+</body>
+</html>
