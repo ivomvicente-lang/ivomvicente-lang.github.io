@@ -339,10 +339,10 @@
   <script>
     // Booking per-occupancy multipliers (%; base occupancy = 0%)
     const APARTMENTS = [
-      { name: 'T1', location: 'Salomé', basePax: 2, maxPax: 4, mult: { 1: -10, 3: 15, 4: 25 } },
-      { name: 'T1 RC', location: 'Salomé', basePax: 2, maxPax: 4, mult: { 1: -10, 3: 15, 4: 25 } },
-      { name: 'T2', location: 'Salomé', basePax: 4, maxPax: 6, mult: { 1: -10, 2: -7, 3: -5, 5: 20, 6: 30 } },
-      { name: 'T0', location: '', basePax: 2, maxPax: 3, mult: { 1: -5, 3: 20 } },
+      { name: 'T1', location: 'Salomé', basePax: 2, maxPax: 4, mult: { 1: -10, 3: 25, 4: 30 } },
+      { name: 'T1 RC', location: 'Salomé', basePax: 2, maxPax: 4, mult: { 1: -10, 3: 25, 4: 30 } },
+      { name: 'T2', location: 'Salomé', basePax: 4, maxPax: 6, mult: { 1: -10, 2: -7, 3: -5, 5: 25, 6: 30 } },
+      { name: 'T0', location: '', basePax: 2, maxPax: 3, mult: { 1: -5, 3: 25 } },
     ];
 
     const BOOKING_FEE = 0.23;
@@ -435,6 +435,13 @@
                 </div>
               </div>
               <div class="apt-input">
+                <label>Airbnb fee / person / night</label>
+                <div class="input-row">
+                  <input type="number" class="extra-fee" data-idx="${idx}" min="0" step="1" inputmode="decimal">
+                  <span class="currency">EUR</span>
+                </div>
+              </div>
+              <div class="apt-input">
                 <label>Stay (nights)</label>
                 <div class="input-row">
                   <input type="number" class="extra-nights" data-idx="${idx}" value="5" min="1" step="1" inputmode="decimal">
@@ -473,6 +480,12 @@
         const baseInput = card.querySelector('.extra-base');
         baseInput.addEventListener('input', () => updateExtra(card));
 
+        const feeInput = card.querySelector('.extra-fee');
+        feeInput.addEventListener('input', () => {
+          card.dataset.feeOverride = '1';
+          updateExtra(card);
+        });
+
         const nightsInput = card.querySelector('.extra-nights');
         nightsInput.addEventListener('input', () => updateExtra(card));
       });
@@ -497,7 +510,13 @@
       const firstExtra = apt.basePax + 1;
       const firstExtraMult = (apt.mult[firstExtra] !== undefined) ? apt.mult[firstExtra] : 0;
       // X = R × ((1 + m%) × 0.90 − 1)  [Genius 10% applied on Booking]
-      const X = Math.round(R * (((1 + firstExtraMult / 100) * 0.90) - 1));
+      const derivedX = Math.round(R * (((1 + firstExtraMult / 100) * 0.90) - 1));
+
+      const feeInput = card.querySelector('.extra-fee');
+      if (!card.dataset.feeOverride) {
+        feeInput.value = derivedX;
+      }
+      const X = parseFloat(feeInput.value) || 0;
 
       const genius = 0.10;
       const tbody = card.querySelector('.extra-table tbody');
@@ -526,15 +545,21 @@
       }
 
       const summary = card.querySelector('.extra-summary');
+      const matchNight = Math.round(R * (1 + firstExtraMult / 100) * (1 - genius));
+      const matchAirbnb = Math.round(R + X * Math.max(0, firstExtra - apt.basePax));
+      const matchDiff = matchAirbnb - matchNight;
+      const matchNote = card.dataset.feeOverride
+        ? (matchDiff > 0 ? `\u2014 Airbnb runs \u20ac${matchDiff} <b>higher</b> than Booking for ${firstExtra} pax (your choice)` :
+           matchDiff < 0 ? `\u2014 Airbnb runs \u20ac${Math.abs(matchDiff)} <b>lower</b> than Booking for ${firstExtra} pax` : '\u2014 exact match')
+        : `\u2014 this makes <strong>${firstExtra} pax</strong> match Booking exactly`;
       summary.innerHTML = `
         Base occupancy <strong>${apt.basePax} pax</strong> (included in rate).
         On Booking, first extra guest adds
         <strong>${firstExtraMult > 0 ? '+' : ''}${firstExtraMult}%</strong> before the 10% Genius discount.
         <br>
-        Airbnb extra fee to set:
+        Airbnb extra fee:
         <strong>&euro;${X} per person / night</strong>
-        (${R === 0 ? '0' : Math.round(((1 + firstExtraMult / 100) * 0.90 - 1) * 100)}% of base rate) &mdash; this makes
-        <strong>${firstExtra} pax</strong> match Booking exactly.
+        ${matchNote}
       `;
     }
 
