@@ -72,44 +72,45 @@
       margin-top: 0.2rem;
     }
 
-    .global-input {
-      margin-bottom: 2rem;
+    .apt-input {
+      margin-bottom: 1rem;
     }
 
-    .global-input label {
+    .apt-input label {
       display: block;
-      font-size: 0.75rem;
+      font-size: 0.65rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #666;
-      margin-bottom: 0.5rem;
+      color: #555;
+      margin-bottom: 0.4rem;
     }
 
-    .global-input .input-row {
+    .apt-input .input-row {
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
 
-    .global-input input {
+    .apt-input input {
       flex: 1;
-      background: #111118;
+      background: #0d0d14;
       border: 1px solid #1e1e2a;
       border-radius: 8px;
-      padding: 0.75rem 1rem;
+      padding: 0.6rem 0.9rem;
       color: #fff;
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       font-weight: 600;
       outline: none;
       transition: border-color 0.2s;
+      max-width: 140px;
     }
 
-    .global-input input:focus {
+    .apt-input input:focus {
       border-color: #333;
     }
 
-    .global-input .currency {
-      font-size: 1.5rem;
+    .apt-input .currency {
+      font-size: 1.2rem;
       font-weight: 600;
       color: #555;
     }
@@ -213,7 +214,7 @@
 <body>
   <div class="container">
     <h1>Platform Fee Calculator</h1>
-    <p class="subtitle">Set your target net — see what to charge on each platform</p>
+    <p class="subtitle">Set each apartment's target net — see what to charge on each platform</p>
 
     <div class="fee-info">
       <div class="fee-badge booking">
@@ -229,14 +230,6 @@
         <div class="platform">VRBO</div>
         <div class="rate">8%</div>
         <div class="extra">5% + 3% fee</div>
-      </div>
-    </div>
-
-    <div class="global-input">
-      <label>Target net per night (what you keep)</label>
-      <div class="input-row">
-        <input type="number" id="targetNet" value="77" min="0" step="1" inputmode="decimal">
-        <span class="currency">EUR</span>
       </div>
     </div>
 
@@ -295,12 +288,10 @@
     }
 
     function render() {
-      const target = parseFloat(document.getElementById('targetNet').value) || 0;
       const container = document.getElementById('apartments');
       container.innerHTML = '';
 
-      APARTMENTS.forEach(apt => {
-        const r = calc(target);
+      APARTMENTS.forEach((apt, idx) => {
         const card = document.createElement('div');
         card.className = 'apt-card';
         card.innerHTML = `
@@ -308,32 +299,55 @@
             <span class="apt-name">${apt.name}</span>
             ${apt.location ? `<span class="apt-location">${apt.location}</span>` : ''}
           </div>
+          <div class="apt-input">
+            <label>Target net per night (what you keep)</label>
+            <div class="input-row">
+              <input type="number" class="apt-net" data-idx="${idx}" min="0" step="1" inputmode="decimal" placeholder="0">
+              <span class="currency">EUR</span>
+            </div>
+          </div>
           <div class="platforms">
             <div class="platform-col booking">
               <div class="label">Booking.com</div>
-              <div class="price">&euro;${r.booking}</div>
-              <div class="net">guest pays &euro;${r.guestPaysBooking}</div>
-              <div class="net">you get &euro;${r.netBooking}</div>
+              <div class="price">&euro;<span class="v-booking">-</span></div>
+              <div class="net">guest pays &euro;<span class="v-guest">-</span></div>
+              <div class="net">you get &euro;<span class="v-netbooking">-</span></div>
             </div>
             <div class="divider"></div>
             <div class="platform-col airbnb">
               <div class="label">Airbnb</div>
-              <div class="price">&euro;${r.airbnb}</div>
-              <div class="net">you get &euro;${r.netAirbnb}</div>
+              <div class="price">&euro;<span class="v-airbnb">-</span></div>
+              <div class="net">you get &euro;<span class="v-netairbnb">-</span></div>
             </div>
             <div class="divider"></div>
             <div class="platform-col vrbo">
               <div class="label">VRBO</div>
-              <div class="price">&euro;${r.vrbo}</div>
-              <div class="net">you get &euro;${r.netVrbo}</div>
+              <div class="price">&euro;<span class="v-vrbo">-</span></div>
+              <div class="net">you get &euro;<span class="v-netvrbo">-</span></div>
             </div>
           </div>
         `;
         container.appendChild(card);
+
+        const input = card.querySelector('.apt-net');
+        input.value = apt.defaultNet !== undefined ? apt.defaultNet : '';
+        input.addEventListener('input', () => updateCard(card, input.value));
+        updateCard(card, input.value);
       });
     }
 
-    document.getElementById('targetNet').addEventListener('input', render);
+    function updateCard(card, rawValue) {
+      const target = parseFloat(rawValue) || 0;
+      const r = calc(target);
+      card.querySelector('.v-booking').textContent = r.booking;
+      card.querySelector('.v-guest').textContent = r.guestPaysBooking;
+      card.querySelector('.v-netbooking').textContent = r.netBooking;
+      card.querySelector('.v-airbnb').textContent = r.airbnb;
+      card.querySelector('.v-netairbnb').textContent = r.netAirbnb;
+      card.querySelector('.v-vrbo').textContent = r.vrbo;
+      card.querySelector('.v-netvrbo').textContent = r.netVrbo;
+    }
+
     render();
   </script>
 </body>
