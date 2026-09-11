@@ -188,6 +188,89 @@
       background: #1e1e2a;
     }
 
+    .extra-toggle {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 0.55rem;
+      background: #0d0d14;
+      border: 1px solid #1e1e2a;
+      border-radius: 8px;
+      color: #888;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .extra-toggle:hover {
+      border-color: #333;
+      color: #ccc;
+    }
+
+    .extra-section {
+      display: none;
+      margin-top: 1rem;
+      border-top: 1px solid #1e1e2a;
+      padding-top: 1rem;
+    }
+
+    .extra-section.open { display: block; }
+
+    .extra-summary {
+      font-size: 0.85rem;
+      color: #aaa;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .extra-summary strong { color: #fff; }
+
+    .extra-inputs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .extra-inputs .apt-input { margin-bottom: 0; }
+
+    .extra-inputs .apt-input input { max-width: 110px; }
+
+    .extra-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .extra-table th {
+      text-align: left;
+      color: #555;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid #1e1e2a;
+    }
+
+    .extra-table td {
+      padding: 0.45rem 0.5rem;
+      border-bottom: 1px solid #12121a;
+      color: #bbb;
+      text-align: right;
+    }
+
+    .extra-table td:first-child { text-align: left; color: #fff; font-weight: 600; }
+
+    .extra-table tr.base-row td { color: #888; }
+
+    .extra-table tr.match-row td {
+      background: rgba(74, 125, 255, 0.08);
+      color: #fff;
+    }
+
+    .extra-table td .nan { color: #666; }
+
     .formula {
       margin-top: 2rem;
       padding: 1rem;
@@ -254,11 +337,12 @@
   </div>
 
   <script>
+    // Booking per-occupancy multipliers (%; base occupancy = 0%)
     const APARTMENTS = [
-      { name: 'T1', location: 'Salomé' },
-      { name: 'T1 RC', location: 'Salomé' },
-      { name: 'T2', location: 'Salomé' },
-      { name: 'T0', location: '' },
+      { name: 'T1', location: 'Salomé', basePax: 2, maxPax: 4, mult: { 1: -10, 3: 15, 4: 25 } },
+      { name: 'T1 RC', location: 'Salomé', basePax: 2, maxPax: 4, mult: { 1: -10, 3: 15, 4: 25 } },
+      { name: 'T2', location: 'Salomé', basePax: 4, maxPax: 6, mult: { 1: -10, 2: -7, 3: -5, 5: 18, 6: 25 } },
+      { name: 'T0', location: '', basePax: 2, maxPax: 3, mult: { 1: -5, 3: 20 } },
     ];
 
     const BOOKING_FEE = 0.23;
@@ -339,6 +423,37 @@
               <div class="net">you get &euro;<span class="v-netvrbo">-</span></div>
             </div>
           </div>
+          <button type="button" class="extra-toggle" data-idx="${idx}">Extra guests pricing &#9656;</button>
+          <div class="extra-section" data-idx="${idx}">
+            <div class="extra-summary"></div>
+            <div class="extra-inputs">
+              <div class="apt-input">
+                <label>Base rate / night</label>
+                <div class="input-row">
+                  <input type="number" class="extra-base" data-idx="${idx}" min="0" step="1" inputmode="decimal">
+                  <span class="currency">EUR</span>
+                </div>
+              </div>
+              <div class="apt-input">
+                <label>Stay (nights)</label>
+                <div class="input-row">
+                  <input type="number" class="extra-nights" data-idx="${idx}" value="5" min="1" step="1" inputmode="decimal">
+                </div>
+              </div>
+            </div>
+            <table class="extra-table">
+              <thead>
+                <tr>
+                  <th>Guests</th>
+                  <th>Booking /night (with Genius)</th>
+                  <th>Airbnb /night</th>
+                  <th>Booking stay</th>
+                  <th>Airbnb stay</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         `;
         container.appendChild(card);
 
@@ -346,7 +461,81 @@
         input.value = apt.defaultNet !== undefined ? apt.defaultNet : '';
         input.addEventListener('input', () => updateCard(card, input.value));
         updateCard(card, input.value);
+
+        const toggle = card.querySelector('.extra-toggle');
+        toggle.addEventListener('click', () => {
+          const section = card.querySelector('.extra-section');
+          const isOpen = section.classList.toggle('open');
+          toggle.textContent = isOpen ? 'Extra guests pricing \u25be' : 'Extra guests pricing \u25b8';
+          updateExtra(card);
+        });
+
+        const baseInput = card.querySelector('.extra-base');
+        baseInput.addEventListener('input', () => updateExtra(card));
+
+        const nightsInput = card.querySelector('.extra-nights');
+        nightsInput.addEventListener('input', () => updateExtra(card));
       });
+    }
+
+    function updateExtra(card) {
+      const idx = parseInt(card.querySelector('.extra-toggle').dataset.idx);
+      const apt = APARTMENTS[idx];
+      const targetNet = parseFloat(card.querySelector('.apt-net').value) || 0;
+      const r = calc(targetNet, 0.12);
+
+      // Default base rate = Airbnb list price for that net; editable
+      const baseInput = card.querySelector('.extra-base');
+      if (!card.dataset.baseSet) {
+        baseInput.value = r.airbnb;
+        card.dataset.baseSet = '1';
+      }
+      const R = parseFloat(baseInput.value) || 0;
+      const nights = parseFloat(card.querySelector('.extra-nights').value) || 1;
+
+      // Booking extra % for first extra guest → derives Airbnb flat fee X
+      const firstExtra = apt.basePax + 1;
+      const firstExtraMult = (apt.mult[firstExtra] !== undefined) ? apt.mult[firstExtra] : 0;
+      // X = R × ((1 + m%) × 0.90 − 1)  [Genius 10% applied on Booking]
+      const X = Math.round(R * (((1 + firstExtraMult / 100) * 0.90) - 1));
+
+      const genius = 0.10;
+      const tbody = card.querySelector('.extra-table tbody');
+      tbody.innerHTML = '';
+
+      for (let pax = 1; pax <= apt.maxPax; pax++) {
+        const m = (apt.mult[pax] !== undefined) ? apt.mult[pax] : 0;
+        const bookingNight = Math.round(R * (1 + m / 100) * (1 - genius));
+        const airbnbNight = Math.round(R + X * Math.max(0, pax - apt.basePax));
+        const bookingStay = bookingNight * nights;
+        const airbnbStay = airbnbNight * nights;
+
+        const tr = document.createElement('tr');
+        if (pax === apt.basePax) tr.className = 'base-row';
+        if (pax === firstExtra) tr.className = 'match-row';
+        const multLabel = (m === 0) ? ''
+          : (m > 0 ? `+${m}%` : `${m}%`);
+        tr.innerHTML = `
+          <td>${pax} pax</td>
+          <td>&euro;${bookingNight} <span style="color:#666">${multLabel}</span></td>
+          <td>&euro;${airbnbNight}</td>
+          <td>&euro;${bookingStay}</td>
+          <td>&euro;${airbnbStay}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      const summary = card.querySelector('.extra-summary');
+      summary.innerHTML = `
+        Base occupancy <strong>${apt.basePax} pax</strong> (included in rate).
+        On Booking, first extra guest adds
+        <strong>${firstExtraMult > 0 ? '+' : ''}${firstExtraMult}%</strong> before the 10% Genius discount.
+        <br>
+        Airbnb extra fee to set:
+        <strong>&euro;${X} per person / night</strong>
+        (${R === 0 ? '0' : Math.round(((1 + firstExtraMult / 100) * 0.90 - 1) * 100)}% of base rate) &mdash; this makes
+        <strong>${firstExtra} pax</strong> match Booking exactly.
+      `;
     }
 
     function updateCard(card, rawValue) {
@@ -361,6 +550,11 @@
       card.querySelector('.v-vrbo').textContent = r.vrbo;
       card.querySelector('.v-guestvrbo').textContent = r.guestPaysVrbo;
       card.querySelector('.v-netvrbo').textContent = r.netVrbo;
+      const section = card.querySelector('.extra-section');
+      if (section && section.classList.contains('open')) {
+        delete card.dataset.baseSet;
+        updateExtra(card);
+      }
     }
 
     function refreshAll() {
