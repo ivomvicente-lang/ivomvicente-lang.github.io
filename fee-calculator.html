@@ -64,6 +64,7 @@
 
     .fee-badge.booking .rate { color: #4a7dff; }
     .fee-badge.airbnb .rate { color: #ff385c; }
+    .fee-badge.vrbo .rate { color: #b26b42; }
 
     .fee-badge .extra {
       font-size: 0.7rem;
@@ -179,6 +180,7 @@
 
     .platform-col.booking .price { color: #4a7dff; }
     .platform-col.airbnb .price { color: #ff385c; }
+    .platform-col.vrbo .price { color: #b26b42; }
 
     .divider {
       width: 1px;
@@ -202,7 +204,8 @@
     }
 
     @media (max-width: 400px) {
-      .platform-col .price { font-size: 1.3rem; }
+      .platform-col .price { font-size: 1.2rem; }
+      .platform-col .net { font-size: 0.65rem; }
       .fee-info { flex-direction: column; gap: 0.5rem; }
     }
   </style>
@@ -222,6 +225,11 @@
         <div class="platform">Airbnb</div>
         <div class="rate">15.5%</div>
       </div>
+      <div class="fee-badge vrbo">
+        <div class="platform">VRBO</div>
+        <div class="rate">8%</div>
+        <div class="extra">5% + 3% fee</div>
+      </div>
     </div>
 
     <div class="global-input">
@@ -237,8 +245,10 @@
     <div class="formula">
       <code>Booking: net = list × 0.90 × 0.77 = list × 0.693</code><br>
       <code>Airbnb: net = list × 0.845</code><br>
+      <code>VRBO: net = list × 0.92</code><br>
       <code>→ Booking list = net ÷ 0.693</code><br>
-      <code>→ Airbnb list = net ÷ 0.845</code>
+      <code>→ Airbnb list = net ÷ 0.845</code><br>
+      <code>→ VRBO list = net ÷ 0.92</code>
     </div>
   </div>
 
@@ -253,6 +263,7 @@
     const BOOKING_FEE = 0.23;
     const BOOKING_GENIUS = 0.10;
     const AIRBNB_FEE = 0.155;
+    const VRBO_FEE = 0.08;
 
     // Booking: list price → 10% Genius discount → 23% host fee on discounted price
     // net = list × (1 - 0.10) × (1 - 0.23) = list × 0.693
@@ -263,16 +274,23 @@
     // net = list × (1 - 0.155) = list × 0.845
     const AIRBNB_NET = 1 - AIRBNB_FEE; // 0.845
 
+    // VRBO: list price → 8% host fee (5% commission + 3% payment fee)
+    // net = list × (1 - 0.08) = list × 0.92
+    const VRBO_NET = 1 - VRBO_FEE; // 0.92
+
     function calc(targetNet) {
       const booking = targetNet / BOOKING_NET;
       const airbnb = targetNet / AIRBNB_NET;
+      const vrbo = targetNet / VRBO_NET;
       const guestPaysBooking = booking * (1 - BOOKING_GENIUS);
       return {
         booking: Math.round(booking),
         airbnb: Math.round(airbnb),
+        vrbo: Math.round(vrbo),
         guestPaysBooking: Math.round(guestPaysBooking),
         netBooking: Math.round(guestPaysBooking * (1 - BOOKING_FEE)),
         netAirbnb: Math.round(airbnb * AIRBNB_NET),
+        netVrbo: Math.round(vrbo * VRBO_NET),
       };
     }
 
@@ -302,6 +320,12 @@
               <div class="label">Airbnb</div>
               <div class="price">&euro;${r.airbnb}</div>
               <div class="net">you get &euro;${r.netAirbnb}</div>
+            </div>
+            <div class="divider"></div>
+            <div class="platform-col vrbo">
+              <div class="label">VRBO</div>
+              <div class="price">&euro;${r.vrbo}</div>
+              <div class="net">you get &euro;${r.netVrbo}</div>
             </div>
           </div>
         `;
