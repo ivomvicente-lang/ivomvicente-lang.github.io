@@ -9,67 +9,63 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #0a0a0f;
-      color: #e0e0e0;
+      background: #f2f3f5;
+      color: #1f2430;
       min-height: 100vh;
       padding: 2rem 1rem;
     }
 
     .container {
-      max-width: 520px;
+      max-width: 560px;
       margin: 0 auto;
     }
 
     h1 {
       font-size: 1.4rem;
-      font-weight: 600;
-      color: #fff;
+      font-weight: 700;
+      color: #111827;
       margin-bottom: 0.3rem;
     }
 
     .subtitle {
       font-size: 0.85rem;
-      color: #888;
-      margin-bottom: 2rem;
+      color: #6b7280;
+      margin-bottom: 1.5rem;
     }
 
     .fee-info {
       display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
     }
 
     .fee-badge {
       flex: 1;
-      background: #111118;
-      border: 1px solid #1e1e2a;
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 0.6rem 0.75rem;
       text-align: center;
     }
 
     .fee-badge .platform {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #666;
-      margin-bottom: 0.25rem;
+      color: #9ca3af;
+      margin-bottom: 0.15rem;
     }
 
     .fee-badge .rate {
-      font-size: 1.5rem;
+      font-size: 0.95rem;
       font-weight: 700;
-      color: #fff;
+      color: #374151;
     }
 
-    .fee-badge.booking .rate { color: #4a7dff; }
-    .fee-badge.airbnb .rate { color: #ff385c; }
-    .fee-badge.vrbo .rate { color: #b26b42; }
-
     .fee-badge .extra {
-      font-size: 0.7rem;
-      color: #555;
-      margin-top: 0.2rem;
+      font-size: 0.68rem;
+      color: #b6bcc6;
+      margin-top: 0.1rem;
     }
 
     .apt-input {
@@ -81,7 +77,7 @@
       font-size: 0.65rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #555;
+      color: #6b7280;
       margin-bottom: 0.4rem;
     }
 
@@ -93,11 +89,11 @@
 
     .apt-input input {
       flex: 1;
-      background: #0d0d14;
-      border: 1px solid #1e1e2a;
+      background: #fff;
+      border: 1px solid #d1d5db;
       border-radius: 8px;
       padding: 0.6rem 0.9rem;
-      color: #fff;
+      color: #111827;
       font-size: 1.2rem;
       font-weight: 600;
       outline: none;
@@ -106,13 +102,13 @@
     }
 
     .apt-input input:focus {
-      border-color: #333;
+      border-color: #2563eb;
     }
 
     .apt-input .currency {
       font-size: 1.2rem;
       font-weight: 600;
-      color: #555;
+      color: #9ca3af;
     }
 
     .apartments {
@@ -122,80 +118,95 @@
     }
 
     .apt-card {
-      background: #111118;
-      border: 1px solid #1e1e2a;
-      border-radius: 10px;
-      padding: 1.25rem;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-top: 3px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 1.15rem 1.25rem 1.25rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
     }
 
     .apt-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.85rem;
     }
 
     .apt-name {
       font-size: 1rem;
-      font-weight: 600;
-      color: #fff;
+      font-weight: 700;
+      color: #111827;
     }
 
     .apt-location {
       font-size: 0.7rem;
-      color: #555;
+      color: #9ca3af;
       text-transform: uppercase;
       letter-spacing: 0.06em;
     }
 
+    .keep-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      color: #6b7280;
+      background: #f8fafc;
+      border: 1px solid #eef1f6;
+      border-radius: 999px;
+      padding: 0.3rem 0.7rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .keep-badge strong { color: #111827; font-weight: 700; }
+
     .platforms {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.5rem;
     }
 
     .platform-col {
       flex: 1;
       text-align: center;
+      background: #f8fafc;
+      border: 1px solid #eef1f6;
+      border-radius: 10px;
+      padding: 0.75rem 0.35rem 0.7rem;
     }
 
     .platform-col .label {
       font-size: 0.65rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #555;
-      margin-bottom: 0.4rem;
+      color: #94a3b8;
+      margin-bottom: 0.35rem;
     }
 
     .platform-col .price {
-      font-size: 1.6rem;
+      font-size: 1.4rem;
       font-weight: 700;
-      color: #fff;
+      color: #111827;
       line-height: 1;
     }
 
     .platform-col .net {
-      font-size: 0.75rem;
-      color: #4a9;
+      font-size: 0.72rem;
+      color: #0f766e;
       margin-top: 0.3rem;
     }
 
-    .platform-col.booking .price { color: #4a7dff; }
-    .platform-col.airbnb .price { color: #ff385c; }
-    .platform-col.vrbo .price { color: #b26b42; }
-
     .divider {
-      width: 1px;
-      background: #1e1e2a;
+      width: 0;
+      display: none;
     }
 
     .extra-toggle {
       width: 100%;
       margin-top: 1rem;
       padding: 0.55rem;
-      background: #0d0d14;
-      border: 1px solid #1e1e2a;
+      background: #fff;
+      border: 1px solid #e5e7eb;
       border-radius: 8px;
-      color: #888;
+      color: #64748b;
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -204,14 +215,14 @@
     }
 
     .extra-toggle:hover {
-      border-color: #333;
-      color: #ccc;
+      border-color: #94a3b8;
+      color: #334155;
     }
 
     .extra-section {
       display: none;
       margin-top: 1rem;
-      border-top: 1px solid #1e1e2a;
+      border-top: 1px solid #eef1f6;
       padding-top: 1rem;
     }
 
@@ -219,12 +230,12 @@
 
     .extra-summary {
       font-size: 0.85rem;
-      color: #aaa;
+      color: #475569;
       line-height: 1.5;
       margin-bottom: 1rem;
     }
 
-    .extra-summary strong { color: #fff; }
+    .extra-summary strong { color: #111827; }
 
     .extra-inputs {
       display: flex;
@@ -244,51 +255,51 @@
 
     .extra-table th {
       text-align: left;
-      color: #555;
+      color: #94a3b8;
       font-weight: 600;
       text-transform: uppercase;
       font-size: 0.65rem;
       letter-spacing: 0.06em;
       padding: 0.4rem 0.5rem;
-      border-bottom: 1px solid #1e1e2a;
+      border-bottom: 1px solid #eef1f6;
     }
 
     .extra-table td {
       padding: 0.45rem 0.5rem;
-      border-bottom: 1px solid #12121a;
-      color: #bbb;
+      border-bottom: 1px solid #f1f5f9;
+      color: #475569;
       text-align: right;
     }
 
-    .extra-table td:first-child { text-align: left; color: #fff; font-weight: 600; }
+    .extra-table td:first-child { text-align: left; color: #111827; font-weight: 600; }
 
-    .extra-table tr.base-row td { color: #888; }
+    .extra-table tr.base-row td { color: #b0b7c3; }
 
     .extra-table tr.match-row td {
-      background: rgba(74, 125, 255, 0.08);
-      color: #fff;
+      background: #eef4ff;
+      color: #1e40af;
     }
 
-    .extra-table td .nan { color: #666; }
+    .extra-table td .nan { color: #9ca3af; }
 
     .formula {
       margin-top: 2rem;
       padding: 1rem;
-      background: #0d0d14;
-      border: 1px solid #1a1a24;
-      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
       font-size: 0.75rem;
-      color: #555;
+      color: #6b7280;
       line-height: 1.6;
     }
 
     .formula code {
-      color: #888;
+      color: #475569;
       font-family: 'SF Mono', 'Fira Code', monospace;
     }
 
     @media (max-width: 400px) {
-      .platform-col .price { font-size: 1.2rem; }
+      .platform-col .price { font-size: 1.1rem; }
       .platform-col .net { font-size: 0.65rem; }
       .fee-info { flex-direction: column; gap: 0.5rem; }
     }
@@ -390,6 +401,10 @@
       APARTMENTS.forEach((apt, idx) => {
         const card = document.createElement('div');
         card.className = 'apt-card';
+        const accents = ['#2563eb', '#0d9488', '#7c3aed', '#d97706'];
+        const accent = accents[idx % accents.length];
+        card.style.borderTopColor = accent;
+        card.querySelector('.apt-name').style.color = accent;
         card.innerHTML = `
           <div class="apt-header">
             <span class="apt-name">${apt.name}</span>
@@ -402,6 +417,7 @@
               <span class="currency">EUR</span>
             </div>
           </div>
+          <div class="keep-badge">Your target net <strong>&euro;<span class="v-keep">-</span></strong>/night</div>
           <div class="platforms">
             <div class="platform-col booking">
               <div class="label">Booking.com</div>
@@ -575,6 +591,7 @@
       card.querySelector('.v-vrbo').textContent = r.vrbo;
       card.querySelector('.v-guestvrbo').textContent = r.guestPaysVrbo;
       card.querySelector('.v-netvrbo').textContent = r.netVrbo;
+      card.querySelector('.v-keep').textContent = target;
       const section = card.querySelector('.extra-section');
       if (section && section.classList.contains('open')) {
         delete card.dataset.baseSet;
