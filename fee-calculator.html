@@ -219,8 +219,8 @@
     <div class="fee-info">
       <div class="fee-badge booking">
         <div class="platform">Booking.com</div>
-        <div class="rate">23%</div>
-        <div class="extra">+ 10% Genius</div>
+        <div class="rate">24.3%</div>
+        <div class="extra">23% + 1.3% pay + 10% Genius</div>
       </div>
       <div class="fee-badge airbnb">
         <div class="platform">Airbnb</div>
@@ -229,17 +229,17 @@
       <div class="fee-badge vrbo">
         <div class="platform">VRBO</div>
         <div class="rate">8%</div>
-        <div class="extra">5% + 3% fee</div>
+        <div class="extra">5% + 3% payment</div>
       </div>
     </div>
 
     <div class="apartments" id="apartments"></div>
 
     <div class="formula">
-      <code>Booking: net = list × 0.90 × 0.77 = list × 0.693</code><br>
+      <code>Booking: net = list × 0.90 × 0.757 = list × 0.6813</code><br>
       <code>Airbnb: net = list × 0.845</code><br>
       <code>VRBO: net = list × 0.92</code><br>
-      <code>→ Booking list = net ÷ 0.693</code><br>
+      <code>→ Booking list = net ÷ 0.6813</code><br>
       <code>→ Airbnb list = net ÷ 0.845</code><br>
       <code>→ VRBO list = net ÷ 0.92</code>
     </div>
@@ -254,14 +254,16 @@
     ];
 
     const BOOKING_FEE = 0.23;
+    const BOOKING_PAYMENT_FEE = 0.013;
     const BOOKING_GENIUS = 0.10;
     const AIRBNB_FEE = 0.155;
     const VRBO_FEE = 0.08;
 
-    // Booking: list price → 10% Genius discount → 23% host fee on discounted price
-    // net = list × (1 - 0.10) × (1 - 0.23) = list × 0.693
-    // list = net ÷ 0.693
-    const BOOKING_NET = (1 - BOOKING_GENIUS) * (1 - BOOKING_FEE); // 0.693
+    // Booking: list → 10% Genius → guest pays 90% → 24.3% fees (23% + 1.3% payment) on that
+    // net = list × (1 - 0.10) × (1 - 0.243) = list × 0.6813
+    // list = net ÷ 0.6813
+    const BOOKING_TOTAL_FEE = BOOKING_FEE + BOOKING_PAYMENT_FEE; // 0.243
+    const BOOKING_NET = (1 - BOOKING_GENIUS) * (1 - BOOKING_TOTAL_FEE); // 0.6813
 
     // Airbnb: list price → 15.5% host fee
     // net = list × (1 - 0.155) = list × 0.845
@@ -281,7 +283,7 @@
         airbnb: Math.round(airbnb),
         vrbo: Math.round(vrbo),
         guestPaysBooking: Math.round(guestPaysBooking),
-        netBooking: Math.round(guestPaysBooking * (1 - BOOKING_FEE)),
+        netBooking: Math.round(guestPaysBooking * (1 - BOOKING_TOTAL_FEE)),
         netAirbnb: Math.round(airbnb * AIRBNB_NET),
         netVrbo: Math.round(vrbo * VRBO_NET),
       };
