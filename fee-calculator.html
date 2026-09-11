@@ -443,14 +443,14 @@
             <div class="extra-summary"></div>
             <div class="extra-inputs">
               <div class="apt-input">
-                <label>Base rate / night</label>
+                <label>Airbnb listing price / night (up to ${apt.basePax} pax)</label>
                 <div class="input-row">
                   <input type="number" class="extra-base" data-idx="${idx}" min="0" step="1" inputmode="decimal">
                   <span class="currency">EUR</span>
                 </div>
               </div>
               <div class="apt-input">
-                <label>Airbnb fee / person / night</label>
+                <label>Airbnb extra fee / person / night (above ${apt.basePax} pax)</label>
                 <div class="input-row">
                   <input type="number" class="extra-fee" data-idx="${idx}" min="0" step="1" inputmode="decimal">
                   <span class="currency">EUR</span>
@@ -568,13 +568,15 @@
            matchDiff < 0 ? `\u2014 Airbnb runs \u20ac${Math.abs(matchDiff)} <b>lower</b> than Booking for ${firstExtra} pax` : '\u2014 exact match')
         : `\u2014 this makes <strong>${firstExtra} pax</strong> match Booking exactly`;
       summary.innerHTML = `
-        Base occupancy <strong>${apt.basePax} pax</strong> (included in rate).
-        On Booking, first extra guest adds
-        <strong>${firstExtraMult > 0 ? '+' : ''}${firstExtraMult}%</strong> before the 10% Genius discount.
+        <strong>&euro;${R}</strong> is the <strong>Airbnb listing price</strong> per night (up to ${apt.basePax} pax).
+        It is auto-filled from your target net (${targetNet} &divide; 0.845) but you can edit it.
         <br>
-        Airbnb extra fee:
-        <strong>&euro;${X} per person / night</strong>
-        ${matchNote}
+        <strong>&euro;${X}</strong> is the <strong>Airbnb extra fee per extra person / night</strong>
+        (above ${apt.basePax} pax).
+        <br>
+        For reference, Booking adds
+        <strong>${firstExtraMult > 0 ? '+' : ''}${firstExtraMult}%</strong> for the ${firstExtra} pax
+        before its 10% Genius discount. ${matchNote}
       `;
     }
 
