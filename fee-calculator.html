@@ -233,6 +233,14 @@
       </div>
     </div>
 
+    <div class="apt-input settings">
+      <label>VRBO guest service fee (charged on top of rate)</label>
+      <div class="input-row">
+        <input type="number" id="vrboGuestFee" value="10" min="0" step="0.5" inputmode="decimal">
+        <span class="currency">%</span>
+      </div>
+    </div>
+
     <div class="apartments" id="apartments"></div>
 
     <div class="formula">
@@ -273,16 +281,18 @@
     // net = list × (1 - 0.08) = list × 0.92
     const VRBO_NET = 1 - VRBO_FEE; // 0.92
 
-    function calc(targetNet) {
+    function calc(targetNet, vrboGuestFee) {
       const booking = targetNet / BOOKING_NET;
       const airbnb = targetNet / AIRBNB_NET;
       const vrbo = targetNet / VRBO_NET;
       const guestPaysBooking = booking * (1 - BOOKING_GENIUS);
+      const guestPaysVrbo = vrbo * (1 + vrboGuestFee);
       return {
         booking: Math.round(booking),
         airbnb: Math.round(airbnb),
         vrbo: Math.round(vrbo),
         guestPaysBooking: Math.round(guestPaysBooking),
+        guestPaysVrbo: Math.round(guestPaysVrbo),
         netBooking: Math.round(guestPaysBooking * (1 - BOOKING_TOTAL_FEE)),
         netAirbnb: Math.round(airbnb * AIRBNB_NET),
         netVrbo: Math.round(vrbo * VRBO_NET),
@@ -325,6 +335,7 @@
             <div class="platform-col vrbo">
               <div class="label">VRBO</div>
               <div class="price">&euro;<span class="v-vrbo">-</span></div>
+              <div class="net">guest pays &euro;<span class="v-guestvrbo">-</span></div>
               <div class="net">you get &euro;<span class="v-netvrbo">-</span></div>
             </div>
           </div>
@@ -340,15 +351,26 @@
 
     function updateCard(card, rawValue) {
       const target = parseFloat(rawValue) || 0;
-      const r = calc(target);
+      const vrboGuestFee = (parseFloat(document.getElementById('vrboGuestFee').value) || 0) / 100;
+      const r = calc(target, vrboGuestFee);
       card.querySelector('.v-booking').textContent = r.booking;
       card.querySelector('.v-guest').textContent = r.guestPaysBooking;
       card.querySelector('.v-netbooking').textContent = r.netBooking;
       card.querySelector('.v-airbnb').textContent = r.airbnb;
       card.querySelector('.v-netairbnb').textContent = r.netAirbnb;
       card.querySelector('.v-vrbo').textContent = r.vrbo;
+      card.querySelector('.v-guestvrbo').textContent = r.guestPaysVrbo;
       card.querySelector('.v-netvrbo').textContent = r.netVrbo;
     }
+
+    function refreshAll() {
+      document.querySelectorAll('.apt-card').forEach(card => {
+        const input = card.querySelector('.apt-net');
+        updateCard(card, input.value);
+      });
+    }
+
+    document.getElementById('vrboGuestFee').addEventListener('input', refreshAll);
 
     render();
   </script>
