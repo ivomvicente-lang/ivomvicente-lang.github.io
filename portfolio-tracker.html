@@ -288,12 +288,7 @@
     }
     .chart-head .ct-close:hover { color: var(--terracotta); border-color: var(--terracotta); }
     #chartHost { position: relative; }
-    #chartHost .ct-loading {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      color: var(--muted); font-style: italic; font-size: 0.9rem; z-index: 5;
-      background: var(--paper);
-    }
-    #chartHost iframe { position: relative; z-index: 2; }
+    #chartHost svg { display: block; }
 
     @media (max-width: 640px) {
       body { padding: 1rem; }
@@ -345,6 +340,11 @@
           <div class="s">$10,000 · equal weight 1/9</div>
         </div>
         <div class="summary-card">
+          <div class="k">Avg buy price</div>
+          <div class="v" id="sumAvgBuy">—</div>
+          <div class="s">per share · portfolio weighted</div>
+        </div>
+        <div class="summary-card">
           <div class="k">Best / worst</div>
           <div class="v" id="sumBestWorst">—</div>
           <div class="s">since purchase</div>
@@ -387,7 +387,8 @@
 
       <div class="note">
         <strong>Prices are live</strong> — "Now", value and P&amp;L update with the latest market close each time you open
-        the page. <strong>Click any row</strong> to open a weekly candlestick chart for that stock.
+        the page. <strong>Click any row</strong> to open a price chart since purchase — your average buy price is marked with a
+        <span style="color:var(--green);font-weight:700">▲ green arrow</span> and a dashed line.
         <strong>How to read this:</strong> Positions are an equal 1/9 split (~$1,111.11 each) of the $10,000 portfolio opened
         Aug&nbsp;18, 2026 (EOD close, per Joseph Carlson's picks). &ldquo;Buy Px&rdquo; is the closing price on Aug&nbsp;18.
         &ldquo;Wk High&rdquo; is the highest close since purchase and &ldquo;Drawdown&rdquo; is how far the current price sits
@@ -446,7 +447,7 @@
     const fmtPct = (n) => (n >= 0 ? "+" : "") + n.toFixed(2) + "%";
 
     function build(dst, live) {
-      let totalCost = 0, totalVal = 0;
+      let totalCost = 0, totalVal = 0, totalShares = 0;
       let best = null, worst = null;
 
       for (const [tick, s] of Object.entries(WEEKLY.stocks)) {
@@ -464,6 +465,7 @@
 
         totalCost += cost;
         totalVal += val;
+        totalShares += shares;
         if (!best || pnlPct > best[1]) best = [tick, pnlPct];
         if (!worst || pnlPct < worst[1]) worst = [tick, pnlPct];
 
@@ -501,6 +503,7 @@
       document.getElementById("sumValue").textContent = fmt(totalVal);
       document.getElementById("sumValueNote").textContent = "≈ " + Math.round(totalVal / totalCost * 1000) / 10 + "x cost";
       document.getElementById("sumCost").textContent = fmt(totalCost);
+      document.getElementById("sumAvgBuy").textContent = fmt(totalCost / totalShares);
       document.getElementById("sumPnl").textContent = totPnl >= 0 ? "+" + fmt(totPnl) : "−" + fmt(Math.abs(totPnl)).slice(1);
       document.getElementById("sumPnl").style.color = totPnl >= 0 ? "var(--green)" : "var(--red)";
       document.getElementById("sumPnlPct").textContent = fmtPct(totPct);
@@ -576,75 +579,64 @@
     }
     function hideTip() { tooltip.classList.remove("show"); }
 
-    // ── Inline TradingView chart ──
-    // The embed widget caches its container element internally, so reusing the
-    // same #chartHost after a widget was already built silently fails. Fix: give
-    // every render its own fresh container element (unique id) and clear the old one.
-    let tvWidget = null;
-    let activeTicker = null;
-    let chartSeq = 0;
+    // ── Price chart (self-drawn SVG — marks your buy price with a green arrow) ──
+    function chartSvg(tick, s, liveClose) {
+      const buy = s.buyPrice;
+      const prices = s.prices.slice().reverse();
+      const pts = buy !== undefined ? [buy].concat(prices) : prices;
+      if (liveClose != null && liveClose > 0) pts.push(liveClose);
 
-    function loadTV() {
-      return new Promise((resolve) => {
-        if (window.TradingView) return resolve();
-        const s = document.createElement("script");
-        s.src = "https://s3.tradingview.com/tv.js";
-        s.onload = () => resolve();
-        document.head.appendChild(s);
-      });
-    }
+      const W = 1000, H = 320, padL = 20, padR = 20, padT = 26, padB = 22;
+      let lo = Math.min.apply(null, pts), hi = Math.max.apply(null, pts);
+      const range = (hi - lo) || 1;
+      lo -= range * 0.08; hi += range * 0.08;
+      const X = (i) => padL + (i / (pts.length - 1)) * (W - padL - padR);
+      const Y = (v) => padT + (1 - (v - lo) / (hi - lo)) * (H - padT - padB);
 
-    function destroyWidget() {
-      if (tvWidget) {
-        try { tvWidget.remove(); } catch (e) {}
-        tvWidget = null;
-      }
-      const host = document.getElementById("chartHost");
-      if (host) host.innerHTML = "";
+      const lastI = pts.length - 1;
+      const buyI = 0;
+
+      let path = "M" + X(0).toFixed(1) + "," + Y(pts[0]).toFixed(1);
+      for (let i = 1; i < pts.length; i++) path += " L" + X(i).toFixed(1) + "," + Y(pts[i]).toFixed(1);
+
+      const upNow = pts[lastI] >= buy;
+      const nowCol = upNow ? "#5a7c3e" : "#b8382a";
+
+      // green buy arrow (triangle) pointing up at purchase point
+      const bx = X(buyI), by = Y(buy);
+      const buyArrow =
+        '<polygon points="' + bx.toFixed(1) + ',' + (by - 4).toFixed(1) + ' ' + (bx - 9).toFixed(1) + ',' + (by + 14).toFixed(1) + ' ' + (bx + 9).toFixed(1) + ',' + (by + 14).toFixed(1) + '" fill="#5a7c3e" stroke="#faf6f0" stroke-width="1.5" opacity="0.95"/>';
+
+      return (
+        '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="display:block;min-height:260px;background:#faf6f0" role="img">' +
+        '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + by.toFixed(1) + '" y2="' + by.toFixed(1) + '" stroke="#5a7c3e" stroke-dasharray="5 4" stroke-width="1.2" opacity="0.7"/>' +
+        '<text x="' + (W - padR) + '" y="' + (by + 14).toFixed(1) + '" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="11" fill="#5a7c3e">buy ' + buy.toFixed(2) + '</text>' +
+        '<path d="' + path + '" fill="none" stroke="#b85c38" stroke-width="2.5" stroke-linejoin="round"/>' +
+        /* current price dot */ '<circle cx="' + X(lastI).toFixed(1) + '" cy="' + Y(pts[lastI]).toFixed(1) + '" r="5" fill="' + nowCol + '" stroke="#faf6f0" stroke-width="2"/>' +
+        '<text x="' + X(lastI).toFixed(1) + '" y="' + (Y(pts[lastI]) + 18).toFixed(1) + '" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="' + nowCol + '">' + pts[lastI].toFixed(2) + '</text>' +
+        buyArrow +
+        '<text x="' + (bx + 14).toFixed(1) + '" y="' + (by + 4).toFixed(1) + '" font-family="Lora,serif" font-size="11" fill="#5a7c3e" font-weight="700">▲ buy</text>' +
+        '</svg>'
+      );
     }
 
     function showChart(tick, s) {
       if (!WEEKLY.stocks[tick]) return;
-      destroyWidget();
-      activeTicker = tick;
 
       const panel = document.getElementById("chartPanel");
       const host = document.getElementById("chartHost");
       document.getElementById("chartTitle").innerHTML =
-        tick + " <small>· " + WEEKLY.stocks[tick].name + " · weekly</small>";
+        tick + " <small>· " + WEEKLY.stocks[tick].name + " · since purchase</small>";
       panel.classList.remove("hidden");
       panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
-      const containerId = "tvChart_" + (++chartSeq);
-      host.innerHTML =
-        '<div class="ct-loading" id="chartLoading">Loading chart…</div>' +
-        '<div id="' + containerId + '" style="height:460px"></div>';
-
-      loadTV().then(() => {
-        if (activeTicker !== tick) return;
-        tvWidget = new TradingView.widget({
-          container_id: containerId,
-          symbol: s.exch + ":" + tick,
-          interval: "W",
-          width: "100%",
-          height: 460,
-          theme: "light",
-          style: "1",
-          locale: "en",
-          hide_side_toolbar: false,
-          allow_symbol_change: true,
-          studies: ["MASimple@tv-basicstudies"],
-          toolbar_bg: "#f3ece1",
-          enable_publishing: false
-        });
-        const loader = document.getElementById("chartLoading");
-        if (loader) loader.style.display = "none";
-      });
+      const liveClose = lastLive && lastLive[tick] ? lastLive[tick].close : null;
+      host.innerHTML = chartSvg(tick, WEEKLY.stocks[tick], liveClose);
     }
 
     function closeChart() {
-      destroyWidget();
-      activeTicker = null;
+      const host = document.getElementById("chartHost");
+      if (host) host.innerHTML = "";
       document.getElementById("chartPanel").classList.add("hidden");
     }
     document.getElementById("chartClose").addEventListener("click", closeChart);
