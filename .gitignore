@@ -1,0 +1,8 @@
+# Local / private — never commit these
+meeting-api/
+meeting-room.html
+reminder_check.py
+reminder.log
+futures_data/
+node_modules/
+.DS_Store
