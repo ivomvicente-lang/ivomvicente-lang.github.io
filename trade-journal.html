@@ -5893,6 +5893,18 @@
     async function deleteTrade(t) {
       if (!confirm("Delete this trade?")) return;
       trades = trades.filter(x => x.id !== t.id);
+      try {
+        const byDay = {};
+        trades.forEach(x => {
+          const k = x.dayKey || (typeof dayKeyOf === "function" ? dayKeyOf(x.ts) : "");
+          if (!byDay[k]) byDay[k] = [];
+          byDay[k].push(x);
+        });
+        Object.keys(byDay).forEach(k => {
+          byDay[k].sort((a,b) => (a.ts||0) - (b.ts||0));
+          byDay[k].forEach((x,i) => { x.n = i + 1; });
+        });
+      } catch(e){}
       saveTrades();
       await Promise.all((shotKeysToDelete(t) || []).map(k => delShot(k)));
       if (ptTrade && ptTrade.id === t.id) closePhotoTrade();
