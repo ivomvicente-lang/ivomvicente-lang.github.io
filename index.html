@@ -1100,6 +1100,7 @@
       <span class="journal-label">Journal</span>
       <select class="period-select" id="journalSel"></select>
       <button class="pill-btn" id="addJournalBtn" title="Create a new custom journal">➕</button>
+      <button class="pill-btn" id="editJournalBtn" title="Rename or delete the selected custom journal">✏️</button>
       <span class="journal-firms">Pro firms:</span>
       <button class="pill-btn" id="addFirmBtn" title="Add a prop firm">🏢 Add firm</button>
     </div>
@@ -6756,7 +6757,51 @@
       const name = prompt("New journal name (e.g. 'Topstep Eval #2' or 'Lucid Eval'):");
       if (!name || !name.trim()) return;
       const j = journals(); j.push({ id: "j" + Date.now(), label: name.trim() }); saveJournals(j);
+      buildJournalSelect();
       switchJournal(j[j.length - 1].id);
+    });
+    document.getElementById("editJournalBtn").addEventListener("click", () => {
+      const jid = curJournal();
+      const jlist = journals();
+      const cur = jlist.find(x => x.id === jid);
+      if (!cur) return;
+      if (jid === "practice" || jid === "challenge" || jid === "funded") {
+        alert("Default journals (Practice, Challenges, Funded Stage) can't be renamed or deleted.");
+        return;
+      }
+      const action = prompt("Type 'rename' to rename, or 'delete' to delete this journal.", "rename");
+      if (!action) return;
+      if (action.trim().toLowerCase() === "rename") {
+        const name = prompt("New name for this journal:", cur.label.replace(/^[^a-zA-Z0-9]+\s*/, "") || cur.label);
+        if (!name || !name.trim()) return;
+        const j = jlist.map(x => x.id === jid ? { ...x, label: name.trim() } : x);
+        saveJournals(j);
+        buildJournalSelect();
+        return;
+      }
+      if (action.trim().toLowerCase() === "delete") {
+        const other = jlist.find(x => x.id !== jid && (x.id === "practice" || x.id === "challenge" || x.id === "funded"));
+        if (!other) { alert("Need at least one other journal to move trades to."); return; }
+        if (!confirm("Delete '" + cur.label + "' and move its trades to '" + other.label + "'? This can't be undone.")) return;
+        try {
+          const fromKey = "tj_trades_v1_" + jid;
+          const toKey = other.id === "practice" ? "tj_trades_v1" : ("tj_trades_v1_" + other.id);
+          const from = JSON.parse(localStorage.getItem(fromKey)) || [];
+          const to = JSON.parse(localStorage.getItem(toKey)) || [];
+          if (from.length) { localStorage.setItem(toKey, JSON.stringify(to.concat(from))); localStorage.removeItem(fromKey); }
+        } catch(e){}
+        try { localStorage.removeItem("tj_last_v1_" + jid); } catch(e){}
+        const nj = jlist.filter(x => x.id !== jid);
+        saveJournals(nj);
+        curJid = other.id;
+        try { localStorage.setItem("tj_cur_v1", curJid); } catch(e){}
+        buildJournalSelect();
+        trades = loadTrades();
+        last = loadLast();
+        renderPhotos();
+        renderFeed();
+        return;
+      }
     });
     document.getElementById("addFirmBtn").addEventListener("click", () => {
       const name = prompt("Prop firm name (e.g. Topstep, OneUp):");
