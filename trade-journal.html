@@ -5601,17 +5601,12 @@
 
     let ptSetupOpen = false;
     function setupPanelHtml(t) {
-      const sel = setupList(t);
-      const chips = SETUP_OPTIONS.map(o =>
-        `<button class="pt-setup-chip${sel.includes(o) ? " on" : ""}" data-setup="${o}">${o}</button>`).join("");
       return `<div class="pt-setup" id="ptSetupPanel">
-        <button class="pt-setup-head" id="ptSetupToggle">
-          <span>🎯 Setup reason${sel.length ? ` <b>· ${sel.length} picked</b>` : ""}</span>
-          <span class="pt-setup-caret">${ptSetupOpen ? "▾" : "▸"}</span>
-        </button>
-        <div class="pt-setup-body" style="display:${ptSetupOpen ? "block" : "none"}">
-          <div class="pt-setup-chips">${chips}</div>
-          <textarea class="pt-setup-note" id="ptSetupNote" rows="2" placeholder="Why did I get in? (optional — e.g. swept the 90m DXTREME low, SS stacked (1)+(2))">${t && t.setupNote ? String(t.setupNote).replace(/</g, "&lt;") : ""}</textarea>
+        <div class="pt-setup-head" style="cursor:default">
+          <span>🎯 Setup reason</span>
+        </div>
+        <div class="pt-setup-body" style="display:block">
+          <textarea class="pt-setup-note" id="ptSetupNote" rows="2" placeholder="Why did I get in?">${t && t.setupNote ? String(t.setupNote).replace(/</g, "&lt;") : ""}</textarea>
         </div>
       </div>`;
     }
@@ -5658,24 +5653,13 @@
 
     function wireSetupPanel(el) {
       if (!el) return;
-      const tog = el.querySelector("#ptSetupToggle");
-      if (tog) tog.addEventListener("click", () => { ptSetupOpen = !ptSetupOpen; refreshSetupPanel(); });
-      el.querySelectorAll("[data-setup]").forEach(b => b.addEventListener("click", () => {
-        const t = ptTrade; if (!t) return;
-        if (!Array.isArray(t.setups)) t.setups = [];
-        const v = b.dataset.setup, i = t.setups.indexOf(v);
-        if (i >= 0) t.setups.splice(i, 1); else t.setups.push(v);
-        t.ssmt = syncSsmtFromSetups(t.setups, t.ssmt);
-        syncFormFields(t);
-        saveTrades();
-        renderPhotos();
-        refreshSetupPanel();
-      }));
       const note = el.querySelector("#ptSetupNote");
       if (note) {
         const saveNote = () => {
           const t = ptTrade; if (!t) return;
           t.setupNote = note.value.trim() || null;
+          t.setups = [];
+          if (t.model) t.model.preset = t.model.preset || "M1";
           syncFormFields(t);
           saveTrades(); renderPhotos();
         };
