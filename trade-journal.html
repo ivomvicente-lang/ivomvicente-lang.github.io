@@ -1735,11 +1735,11 @@
     const FIRMS_KEY = "tj_firms_v1";
     const CUR_KEY = "tj_cur_v1";
 
-    // journals: separate trade data per stage. "testing" keeps the legacy keys (no suffix).
+    // journals: separate trade data per stage. "practice" keeps the legacy keys (no suffix).
     const DEFAULT_JOURNALS = [
-      { id: "testing", label: "🧪 Testing" },
-      { id: "eval", label: "🎯 Evaluation" },
-      { id: "funded", label: "💵 Funded" }
+      { id: "practice", label: "🧪 Practice" },
+      { id: "challenge", label: "🎯 Challenges" },
+      { id: "funded", label: "💵 Funded Stage" }
     ];
     function journals() {
       try {
@@ -1750,10 +1750,10 @@
     }
     function saveJournals(j) { localStorage.setItem(JOURS_KEY, JSON.stringify(j)); }
 
-    let curJid = (() => { try { return localStorage.getItem(CUR_KEY) || "testing"; } catch { return "testing"; } })();
-    function curJournal() { return journals().some(j => j.id === curJid) ? curJid : "testing"; }
-    function tradesKey(jid) { return jid === "testing" ? TRADES_KEY : TRADES_KEY + "_" + jid; }
-    function lastKey(jid) { return jid === "testing" ? LAST_KEY : LAST_KEY + "_" + jid; }
+    let curJid = (() => { try { return localStorage.getItem(CUR_KEY) || "practice"; } catch { return "practice"; } })();
+    function curJournal() { return journals().some(j => j.id === curJid) ? curJid : "practice"; }
+    function tradesKey(jid) { return jid === "practice" ? TRADES_KEY : TRADES_KEY + "_" + jid; }
+    function lastKey(jid) { return jid === "practice" ? LAST_KEY : LAST_KEY + "_" + jid; }
 
     let FIRMS = (() => {
       try {
