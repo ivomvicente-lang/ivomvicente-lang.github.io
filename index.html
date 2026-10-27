@@ -6768,6 +6768,14 @@
       last.firm = D.firm; saveLast();
     });
 
+    // Force Express Journal as default
+    try {
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      const tp=document.getElementById('tabPhotos'); if(tp) tp.classList.add('active');
+      ['logView','statsView','libraryView','propView','insightsView'].forEach(id=>{const v=document.getElementById(id); if(v) v.style.display='none';});
+      const pv=document.getElementById('photosView'); if(pv) pv.style.display='block';
+      if(typeof renderPhotos==='function') renderPhotos();
+    } catch(e){}
     renderFeed();
     renderStats(filteredTrades());
     renderTiming(filteredTrades());
