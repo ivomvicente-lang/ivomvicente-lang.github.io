@@ -5841,8 +5841,6 @@
       host.innerHTML =
         `<label>Market <select id="ptQeMarket">${opts((mg && mg.opts) || [], t.market, "— not set —")}</select></label>` +
         `<label>Direction <select id="ptQeDir">${opts((dg && dg.opts) || [], t.dir, "— not set —")}</select></label>` +
-        `<label>LTF <select id="ptQeLtf">${opts(LTF_OPTS, ltf)}</select></label>` +
-        `<label>HTF <select id="ptQeHtf">${opts(HTF_OPTS, htf)}</select></label>` +
         `<label>R <select id="ptQeR" title="R for this trade — −6R to +6R, 0 = do nothing">${rOptionsHtml(t.r)}</select></label>` +
         `<span class="pt-qe-result"><span class="pt-qe-lbl">Result</span>` +
           `<button class="pt-qe-out win${outcomeKey(t) === "win" ? " on" : ""}" data-out="win">🟢 Win</button>` +
@@ -5875,8 +5873,6 @@
         renderPhotos();
       });
       host.querySelector("#ptQeDir").addEventListener("change", e => { t.dir = e.target.value || null; syncFormDir(t); syncFormFields(t); apply(); });
-      host.querySelector("#ptQeLtf").addEventListener("change", e => { if (!t.model) t.model = {}; t.model.ltf = e.target.value; apply(); });
-      host.querySelector("#ptQeHtf").addEventListener("change", e => { if (!t.model) t.model = {}; t.model.htf = e.target.value; apply(); });
       const rsel = host.querySelector("#ptQeR");
       if (rsel) rsel.addEventListener("change", e => { setTradeR(t, e.target.value); flash(); });
       host.querySelectorAll(".pt-qe-out").forEach(b => b.addEventListener("click", () => {
