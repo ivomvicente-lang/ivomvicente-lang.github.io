@@ -2824,7 +2824,9 @@
         if(tl.market){
           const g=GROUPS.find(x=>x.key==='market');
           if(g && g.opts.includes(tl.market)){
-            if(D.market!==tl.market){ D.market=tl.market; D.marketManual = true; last.market=tl.market; saveLast();
+            if(D.marketManual && D.market) {
+              // respect manual selection
+            } else if(D.market!==tl.market){ D.market=tl.market; D.marketManual = true; last.market=tl.market; saveLast();
               const el=document.getElementById('grpMarket');
               if(el) el.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.val===tl.market));
               const sel=document.getElementById('photoMarket'); if(sel) sel.value=tl.market; changed++; msg.push('Market '+tl.market);
@@ -6050,7 +6052,7 @@
       const dk = dayKeyOf(ts);
       const t = {
         id: "t" + ts, ts, dayKey: dk, dow: dowOf(ts), n: trades.filter(x => x.dayKey === dk).length + 1,
-        market, dir: dirS, model: { preset: "M1", ltf: "15s", htf: "15m" },
+        market, dir: dirS, marketManual: !!market, model: { preset: "M1", ltf: "15s", htf: "15m" },
         ssmt: null, entry: null, session: null, quality: null, planned: false, followed: null, cycles: [],
         htfAlign: null, htfTf: null, cic: null, ult: null, news: false, newsText: "", firm: null,
         entryTime: null, exitTime: null, r: null, rCustom: false, size: null, entryPx: null, slPx: null,
