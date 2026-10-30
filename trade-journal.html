@@ -1853,6 +1853,7 @@
       t.marketManual = !!t.marketManual;
       if (t.slReason === undefined) t.slReason = "";
       if (t.slTag === undefined) t.slTag = null;
+      if (t.tp1Note === undefined) t.tp1Note = "";
       if (t.marketManual === undefined) t.marketManual = false;
       if (t.outcome === undefined) t.outcome = null;
       if (!t.dayKey) t.dayKey = dayKeyOf(t.ts || Date.now());
@@ -5708,6 +5709,24 @@
           wrap.innerHTML = slReasonPanelHtml(ptTrade);
           el.appendChild(wrap);
           wireSlReason(wrap.querySelector("#ptSlReason"));
+        }
+        if (slot.kind === "tp1slot") {
+          const wrap = document.createElement("div");
+          wrap.className = "pt-tp1note-wrap";
+          wrap.style.marginTop = ".5rem";
+          wrap.innerHTML = `<textarea class="pt-setup-note" id="ptTp1Note" rows="2" placeholder="Add notes for TP1...">${ptTrade && ptTrade.tp1Note ? String(ptTrade.tp1Note).replace(/</g, "&lt;") : ""}</textarea>`;
+          el.appendChild(wrap);
+          const note = wrap.querySelector("#ptTp1Note");
+          if (note) {
+            const save = () => {
+              const t = ptTrade; if (!t) return;
+              t.tp1Note = note.value;
+              saveTrades();
+              renderPhotos();
+            };
+            note.addEventListener("change", save);
+            note.addEventListener("blur", save);
+          }
         }
         const cell = el.querySelector(".pt-slot-box");
         const existing = slotExistingKey(ptTrade, slot);
